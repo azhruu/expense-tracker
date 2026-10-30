@@ -1,6 +1,6 @@
 # ExpenseTracker — Build Roadmap
 
-Grows on rotation with my other projects (two commits a day across the account).
+Each item lands as one complete, tested change.
 
 - [x] Core app: add/delete entries, localStorage persistence
 - [x] Summary cards (balance, monthly income, monthly expenses)
