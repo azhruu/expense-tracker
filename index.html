@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExpenseTracker — personal finance, in your browser</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>💰 ExpenseTracker</h1>
+  <p>Personal income &amp; expense tracking — private by design, everything stays in your browser.</p>
+</header>
+
+<section class="cards">
+  <div class="card"><span>Balance</span><strong id="balance">Rs 0</strong></div>
+  <div class="card in"><span>Income (this month)</span><strong id="income">Rs 0</strong></div>
+  <div class="card out"><span>Expenses (this month)</span><strong id="expenses">Rs 0</strong></div>
+</section>
+
+<section class="panel">
+  <h2>Add entry</h2>
+  <form id="entryForm">
+    <select id="type">
+      <option value="expense">Expense</option>
+      <option value="income">Income</option>
+    </select>
+    <input id="title" placeholder="What was it? e.g. Groceries" required maxlength="60">
+    <input id="amount" type="number" placeholder="Amount (Rs)" min="1" step="any" required>
+    <select id="category">
+      <option>Food</option><option>Transport</option><option>Bills</option>
+      <option>Shopping</option><option>Health</option><option>Entertainment</option>
+      <option>Salary</option><option>Other</option>
+    </select>
+    <input id="date" type="date" required>
+    <button type="submit">Add</button>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="row">
+    <h2>History</h2>
+    <div>
+      <input id="monthFilter" type="month">
+      <select id="categoryFilter">
+        <option value="">All categories</option>
+        <option>Food</option><option>Transport</option><option>Bills</option>
+        <option>Shopping</option><option>Health</option><option>Entertainment</option>
+        <option>Salary</option><option>Other</option>
+      </select>
+    </div>
+  </div>
+  <ul id="entries"></ul>
+  <p id="emptyMsg" class="muted">No entries yet — add your first one above.</p>
+</section>
+
+<section class="panel">
+  <h2>Spending by category (this month)</h2>
+  <canvas id="chart" width="900" height="260"></canvas>
+</section>
+
+<footer>ExpenseTracker · data stored locally in your browser (localStorage) · MIT</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
