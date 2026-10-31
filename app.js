@@ -46,6 +46,86 @@ function filtered() {
     (!m || x.date.startsWith(m)) && (!c || x.category === c));
 }
 
+/* --- CSV export / import --- */
+function csvEscape(v) {
+  const s = String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+
+function toCSV(rows) {
+  const lines = [["type", "title", "amount", "category", "date"].join(",")];
+  for (const x of rows)
+    lines.push([x.type, x.title, x.amount, x.category, x.date].map(csvEscape).join(","));
+  return lines.join("\n") + "\n";
+}
+
+/* Minimal RFC 4180-style parser: quoted fields, doubled quotes, CRLF. */
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else quoted = false;
+      } else field += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field); field = "";
+      if (row.length > 1 || row[0] !== "") rows.push(row);
+      row = [];
+    } else field += c;
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+function parseEntriesCSV(text) {
+  const rows = parseCSV(text.trim());
+  if (!rows.length) return { imported: [], skipped: 0 };
+  const header = rows[0].map((h) => h.trim().toLowerCase());
+  const data = (header.includes("title") && header.includes("amount")) ? rows.slice(1) : rows;
+  const imported = [];
+  let skipped = 0;
+  for (const r of data) {
+    const [type, title, amount, category, date] = r.map((v) => (v || "").trim());
+    const amt = parseFloat(amount);
+    if ((type !== "income" && type !== "expense") || !title || !(amt > 0)
+        || !/^\d{4}-\d{2}-\d{2}$/.test(date)) { skipped++; continue; }
+    imported.push({ id: Date.now() + imported.length, type, title, amount: amt,
+                    category: category || "Other", date });
+  }
+  return { imported, skipped };
+}
+
+function exportCSV() {
+  const rows = filtered();
+  if (!rows.length) { $("csvStatus").textContent = "Nothing to export — no entries match the current filters."; return; }
+  const blob = new Blob([toCSV(rows)], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "expense-tracker-" + new Date().toISOString().slice(0, 10) + ".csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  $("csvStatus").textContent = "Exported " + rows.length + " entries to CSV.";
+}
+
+function importCSVFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const { imported, skipped } = parseEntriesCSV(reader.result);
+    if (imported.length) { entries = imported.concat(entries); save(); render(); }
+    $("csvStatus").textContent = "Imported " + imported.length + " entries"
+      + (skipped ? " (" + skipped + " invalid rows skipped)" : "") + ".";
+  };
+  reader.readAsText(file);
+}
+/* --- end CSV --- */
+
 function render() {
   const month = thisMonth();
   const monthEntries = entries.filter((x) => x.date.startsWith(month));
@@ -103,6 +183,8 @@ function drawChart(monthEntries) {
 }
 
 $("entryForm").addEventListener("submit", addEntry);
+$("exportBtn").addEventListener("click", exportCSV);
+$("importFile").addEventListener("change", (e) => { importCSVFile(e.target.files[0]); e.target.value = ""; });
 $("monthFilter").addEventListener("change", render);
 $("categoryFilter").addEventListener("change", render);
 $("date").value = new Date().toISOString().slice(0, 10);

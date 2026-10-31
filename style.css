@@ -18,6 +18,10 @@ form{display:flex;gap:10px;flex-wrap:wrap}
 input,select,button{background:#0d1117;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px}
 button{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;cursor:pointer}
 button:hover{filter:brightness(1.12)}
+button.secondary,.file-label{background:#21262d;border-color:var(--border);color:var(--text);font-weight:600;cursor:pointer}
+.csv-row{margin-bottom:10px}
+.file-label{border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px}
+.file-label:hover{filter:brightness(1.12)}
 .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 ul#entries{list-style:none;margin:0;padding:0}
 ul#entries li{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid var(--border)}

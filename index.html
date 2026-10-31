@@ -51,6 +51,12 @@
       </select>
     </div>
   </div>
+  <div class="row csv-row">
+    <button type="button" id="exportBtn" class="secondary">⬇ Export CSV</button>
+    <label class="secondary file-label" for="importFile">⬆ Import CSV</label>
+    <input id="importFile" type="file" accept=".csv,text/csv" hidden>
+  </div>
+  <p id="csvStatus" class="muted"></p>
   <ul id="entries"></ul>
   <p id="emptyMsg" class="muted">No entries yet — add your first one above.</p>
 </section>

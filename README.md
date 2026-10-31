@@ -11,6 +11,7 @@
 - ➕ Add income & expenses with category, date and amount
 - 📊 Live balance, this-month income and this-month expenses cards
 - 🔎 Filter history by month and category
+- 📥 Export the filtered history to CSV and import entries back from a CSV file
 - 📈 Spending-by-category bar chart (canvas, zero libraries)
 - 💾 Automatic persistence in `localStorage` — refresh-proof
 - 🌑 Clean dark UI, mobile-friendly
