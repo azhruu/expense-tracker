@@ -66,6 +66,22 @@
   <canvas id="chart" width="900" height="260"></canvas>
 </section>
 
+<section class="panel">
+  <h2>Monthly budgets</h2>
+  <p class="muted">Set a spending limit per category — progress is measured against this month's expenses.</p>
+  <form id="budgetForm">
+    <select id="budgetCategory">
+      <option>Food</option><option>Transport</option><option>Bills</option>
+      <option>Shopping</option><option>Health</option><option>Entertainment</option>
+      <option>Salary</option><option>Other</option>
+    </select>
+    <input id="budgetAmount" type="number" placeholder="Monthly limit (Rs)" min="1" step="any" required>
+    <button type="submit">Set budget</button>
+  </form>
+  <div id="budgets"></div>
+  <p id="budgetsEmptyMsg" class="muted">No budgets set yet — add one above.</p>
+</section>
+
 <footer>ExpenseTracker · data stored locally in your browser (localStorage) · MIT</footer>
 
 <script src="app.js"></script>

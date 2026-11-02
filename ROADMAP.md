@@ -7,7 +7,7 @@ Each item lands as one complete, tested change.
 - [x] Month + category filters
 - [x] Spending-by-category bar chart
 - [x] Export entries to CSV (and import back)
-- [ ] Monthly budgets per category with progress bars
+- [x] Monthly budgets per category with progress bars
 - [ ] Recurring entries (salary, bills) auto-added each month
 - [ ] Edit an existing entry
 - [ ] Multi-currency support (PKR / USD / EUR)

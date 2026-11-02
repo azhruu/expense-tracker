@@ -12,6 +12,72 @@ function load() {
 }
 function save() { localStorage.setItem(KEY, JSON.stringify(entries)); }
 
+/* --- Monthly budgets per category --- */
+const BUDGET_KEY = "expense-tracker-budgets-v1";
+let budgets = loadBudgets();
+
+function loadBudgets() {
+  try { return JSON.parse(localStorage.getItem(BUDGET_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveBudgets() { localStorage.setItem(BUDGET_KEY, JSON.stringify(budgets)); }
+
+/* Pure helper (kept DOM-free so it can be unit-tested in node). */
+function budgetProgress(spent, limit) {
+  if (!(limit > 0)) return { pct: 0, remaining: 0, over: 0, status: "none" };
+  const pct = Math.round((spent / limit) * 100);
+  if (spent > limit) return { pct, remaining: 0, over: spent - limit, status: "over" };
+  if (pct >= 80) return { pct, remaining: limit - spent, over: 0, status: "warn" };
+  return { pct, remaining: limit - spent, over: 0, status: "ok" };
+}
+
+function setBudget(e) {
+  e.preventDefault();
+  const category = $("budgetCategory").value;
+  const limit = parseFloat($("budgetAmount").value);
+  if (!category || !(limit > 0)) return;
+  budgets[category] = limit;
+  saveBudgets();
+  $("budgetForm").reset();
+  render();
+}
+
+function removeBudget(category) {
+  delete budgets[category];
+  saveBudgets();
+  render();
+}
+
+function renderBudgets(monthEntries) {
+  const wrap = $("budgets");
+  wrap.innerHTML = "";
+  const names = Object.keys(budgets).sort();
+  $("budgetsEmptyMsg").style.display = names.length ? "none" : "block";
+  for (const cat of names) {
+    const limit = budgets[cat];
+    const spent = monthEntries.filter((x) => x.type === "expense" && x.category === cat)
+      .reduce((s, x) => s + x.amount, 0);
+    const p = budgetProgress(spent, limit);
+    const row = document.createElement("div");
+    row.className = "budget-row";
+    row.innerHTML =
+      `<div class="budget-top"><strong></strong><small></small><button class="del" title="Remove budget">✕</button></div>` +
+      `<div class="bar"><div class="bar-fill"></div></div>` +
+      `<p class="budget-note"></p>`;
+    row.querySelector("strong").textContent = cat;
+    row.querySelector("small").textContent = fmt(spent) + " of " + fmt(limit) + " (" + p.pct + "%)";
+    const fill = row.querySelector(".bar-fill");
+    fill.style.width = Math.min(100, p.pct) + "%";
+    if (p.status !== "ok") fill.classList.add(p.status);
+    const note = row.querySelector(".budget-note");
+    if (p.status === "over") { note.textContent = "Over budget by " + fmt(p.over); note.classList.add("over"); }
+    else note.textContent = fmt(p.remaining) + " left this month";
+    row.querySelector(".del").addEventListener("click", () => removeBudget(cat));
+    wrap.appendChild(row);
+  }
+}
+/* --- end budgets --- */
+
 const fmt = (n) => "Rs " + Math.round(n).toLocaleString("en-PK");
 const thisMonth = () => new Date().toISOString().slice(0, 7); // YYYY-MM
 
@@ -153,6 +219,7 @@ function render() {
     list.appendChild(li);
   }
   drawChart(monthEntries);
+  renderBudgets(monthEntries);
 }
 
 function drawChart(monthEntries) {
@@ -183,6 +250,7 @@ function drawChart(monthEntries) {
 }
 
 $("entryForm").addEventListener("submit", addEntry);
+$("budgetForm").addEventListener("submit", setBudget);
 $("exportBtn").addEventListener("click", exportCSV);
 $("importFile").addEventListener("change", (e) => { importCSVFile(e.target.files[0]); e.target.value = ""; });
 $("monthFilter").addEventListener("change", render);
