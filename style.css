@@ -23,8 +23,8 @@ button.secondary,.file-label{background:#21262d;border-color:var(--border);color
 .file-label{border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px}
 .file-label:hover{filter:brightness(1.12)}
 .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-ul#entries{list-style:none;margin:0;padding:0}
-ul#entries li{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid var(--border)}
+ul#entries,ul#recurringList{list-style:none;margin:0;padding:0}
+ul#entries li,ul#recurringList li{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid var(--border)}
 ul#entries li:last-child{border-bottom:none}
 .entry-main{display:flex;flex-direction:column}
 .entry-main small{color:var(--muted)}

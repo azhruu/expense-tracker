@@ -14,6 +14,7 @@
 - 📥 Export the filtered history to CSV and import entries back from a CSV file
 - 📈 Spending-by-category bar chart (canvas, zero libraries)
 - 💰 Monthly budgets per category with progress bars (over-budget and near-limit warnings)
+- 🔁 Recurring entries (salary, bills) auto-added once each month on a chosen day
 - 💾 Automatic persistence in `localStorage` — refresh-proof
 - 🌑 Clean dark UI, mobile-friendly
 

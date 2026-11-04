@@ -82,6 +82,29 @@
   <p id="budgetsEmptyMsg" class="muted">No budgets set yet — add one above.</p>
 </section>
 
+<section class="panel">
+  <h2>Recurring entries</h2>
+  <p class="muted">Salary, rent or bills — added automatically once each month, on the day you pick (clamped to the last day of shorter months).</p>
+  <form id="recurringForm">
+    <select id="recType">
+      <option value="expense">Expense</option>
+      <option value="income">Income</option>
+    </select>
+    <input id="recTitle" placeholder="What repeats? e.g. Salary" required maxlength="60">
+    <input id="recAmount" type="number" placeholder="Amount (Rs)" min="1" step="any" required>
+    <select id="recCategory">
+      <option>Food</option><option>Transport</option><option>Bills</option>
+      <option>Shopping</option><option>Health</option><option>Entertainment</option>
+      <option>Salary</option><option>Other</option>
+    </select>
+    <input id="recDay" type="number" placeholder="Day of month" min="1" max="31" value="1" required>
+    <button type="submit">Add recurring</button>
+  </form>
+  <p id="recurringStatus" class="muted"></p>
+  <ul id="recurringList"></ul>
+  <p id="recurringEmptyMsg" class="muted">No recurring entries yet — add your salary or a monthly bill above.</p>
+</section>
+
 <footer>ExpenseTracker · data stored locally in your browser (localStorage) · MIT</footer>
 
 <script src="app.js"></script>

@@ -81,6 +81,102 @@ function renderBudgets(monthEntries) {
 const fmt = (n) => "Rs " + Math.round(n).toLocaleString("en-PK");
 const thisMonth = () => new Date().toISOString().slice(0, 7); // YYYY-MM
 
+/* --- Recurring entries: auto-added once per month --- */
+const RECURRING_KEY = "expense-tracker-recurring-v1";
+const REC_APPLIED_KEY = "expense-tracker-recurring-applied-v1";
+let recurring = loadRecurring();
+let recurringApplied = loadRecurringApplied();
+
+function loadRecurring() {
+  try { return JSON.parse(localStorage.getItem(RECURRING_KEY)) || []; }
+  catch { return []; }
+}
+function loadRecurringApplied() {
+  try { return JSON.parse(localStorage.getItem(REC_APPLIED_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveRecurring() { localStorage.setItem(RECURRING_KEY, JSON.stringify(recurring)); }
+function saveRecurringApplied() { localStorage.setItem(REC_APPLIED_KEY, JSON.stringify(recurringApplied)); }
+
+/* Pure helpers (DOM-free, unit-testable in node). */
+function daysInMonth(monthStr) {
+  const [y, m] = monthStr.split("-").map(Number);
+  return new Date(y, m, 0).getDate();
+}
+function recurringDateForMonth(rec, monthStr) {
+  const day = Math.min(Math.max(1, rec.day || 1), daysInMonth(monthStr));
+  return monthStr + "-" + String(day).padStart(2, "0");
+}
+function dueRecurring(list, applied, monthStr) {
+  return list.filter((r) => !(applied[r.id] || []).includes(monthStr))
+    .map((r, i) => ({ id: Date.now() + i, recurringId: r.id, type: r.type,
+      title: r.title, amount: r.amount, category: r.category,
+      date: recurringDateForMonth(r, monthStr) }));
+}
+
+/* Adds this month's recurring instances once; a deleted instance is not
+   resurrected until next month, because the month stays marked applied. */
+function applyRecurring() {
+  const month = thisMonth();
+  const due = dueRecurring(recurring, recurringApplied, month);
+  if (!due.length) return 0;
+  entries = due.concat(entries);
+  for (const x of due) {
+    (recurringApplied[x.recurringId] = recurringApplied[x.recurringId] || []).push(month);
+  }
+  save();
+  saveRecurringApplied();
+  return due.length;
+}
+
+function addRecurring(e) {
+  e.preventDefault();
+  const rec = {
+    id: Date.now(),
+    type: $("recType").value,
+    title: $("recTitle").value.trim(),
+    amount: parseFloat($("recAmount").value),
+    category: $("recCategory").value,
+    day: parseInt($("recDay").value, 10),
+  };
+  if (!rec.title || !(rec.amount > 0) || !(rec.day >= 1 && rec.day <= 31)) return;
+  recurring.unshift(rec);
+  saveRecurring();
+  $("recurringForm").reset();
+  $("recDay").value = 1;
+  render();
+}
+
+function removeRecurring(id) {
+  recurring = recurring.filter((r) => r.id !== id);
+  saveRecurring();
+  render();
+}
+
+function renderRecurring() {
+  const list = $("recurringList");
+  list.innerHTML = "";
+  $("recurringEmptyMsg").style.display = recurring.length ? "none" : "block";
+  const appliedThisMonth = recurring.filter((r) =>
+    (recurringApplied[r.id] || []).includes(thisMonth())).length;
+  $("recurringStatus").textContent = recurring.length
+    ? appliedThisMonth + " of " + recurring.length + " recurring entries added for this month."
+    : "";
+  for (const r of recurring) {
+    const li = document.createElement("li");
+    li.innerHTML =
+      `<div class="entry-main"><span></span><small></small></div>` +
+      `<div><span class="amt ${r.type === "income" ? "in" : "out"}">${r.type === "income" ? "+" : "−"} ${fmt(r.amount)}</span>` +
+      `<button class="del" title="Delete recurring entry">✕</button></div>`;
+    li.querySelector(".entry-main span").textContent = r.title;
+    li.querySelector(".entry-main small").textContent =
+      r.category + " · day " + r.day + " of each month";
+    li.querySelector(".del").addEventListener("click", () => removeRecurring(r.id));
+    list.appendChild(li);
+  }
+}
+/* --- end recurring --- */
+
 function addEntry(e) {
   e.preventDefault();
   const entry = {
@@ -220,6 +316,7 @@ function render() {
   }
   drawChart(monthEntries);
   renderBudgets(monthEntries);
+  renderRecurring();
 }
 
 function drawChart(monthEntries) {
@@ -251,10 +348,12 @@ function drawChart(monthEntries) {
 
 $("entryForm").addEventListener("submit", addEntry);
 $("budgetForm").addEventListener("submit", setBudget);
+$("recurringForm").addEventListener("submit", addRecurring);
 $("exportBtn").addEventListener("click", exportCSV);
 $("importFile").addEventListener("change", (e) => { importCSVFile(e.target.files[0]); e.target.value = ""; });
 $("monthFilter").addEventListener("change", render);
 $("categoryFilter").addEventListener("change", render);
 $("date").value = new Date().toISOString().slice(0, 10);
 $("monthFilter").value = thisMonth();
+applyRecurring();
 render();
