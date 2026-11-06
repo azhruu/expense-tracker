@@ -9,7 +9,7 @@ Each item lands as one complete, tested change.
 - [x] Export entries to CSV (and import back)
 - [x] Monthly budgets per category with progress bars
 - [x] Recurring entries (salary, bills) auto-added each month
-- [ ] Edit an existing entry
+- [x] Edit an existing entry
 - [ ] Multi-currency support (PKR / USD / EUR)
 - [ ] Yearly summary view with monthly trend line chart
 - [ ] Search entries by title

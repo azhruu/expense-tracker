@@ -20,7 +20,7 @@
 </section>
 
 <section class="panel">
-  <h2>Add entry</h2>
+  <h2 id="formTitle">Add entry</h2>
   <form id="entryForm">
     <select id="type">
       <option value="expense">Expense</option>
@@ -34,7 +34,8 @@
       <option>Salary</option><option>Other</option>
     </select>
     <input id="date" type="date" required>
-    <button type="submit">Add</button>
+    <button type="submit" id="submitBtn">Add</button>
+    <button type="button" id="cancelEditBtn" class="secondary" style="display:none">Cancel</button>
   </form>
 </section>
 

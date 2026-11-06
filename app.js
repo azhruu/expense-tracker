@@ -179,16 +179,22 @@ function renderRecurring() {
 
 function addEntry(e) {
   e.preventDefault();
-  const entry = {
-    id: Date.now(),
+  const fields = {
     type: $("type").value,
     title: $("title").value.trim(),
     amount: parseFloat($("amount").value),
     category: $("category").value,
     date: $("date").value,
   };
-  if (!entry.title || !(entry.amount > 0) || !entry.date) return;
-  entries.unshift(entry);
+  if (!fields.title || !(fields.amount > 0) || !fields.date) return;
+  if (editingId !== null) {
+    entries = applyEdit(entries, editingId, fields);
+    save();
+    cancelEdit();
+    render();
+    return;
+  }
+  entries.unshift({ id: Date.now(), ...fields });
   save();
   $("entryForm").reset();
   $("date").value = new Date().toISOString().slice(0, 10);
@@ -200,6 +206,40 @@ function removeEntry(id) {
   save();
   render();
 }
+
+/* --- Edit an existing entry --- */
+let editingId = null;
+
+/* Pure helper (DOM-free, unit-testable in node): merge `fields` into the
+   entry with `id`, keeping its position; an unknown id leaves the list alone. */
+function applyEdit(list, id, fields) {
+  return list.map((x) => (x.id === id ? { ...x, ...fields } : x));
+}
+
+function startEdit(id) {
+  const x = entries.find((e) => e.id === id);
+  if (!x) return;
+  editingId = id;
+  $("type").value = x.type;
+  $("title").value = x.title;
+  $("amount").value = x.amount;
+  $("category").value = x.category;
+  $("date").value = x.date;
+  $("formTitle").textContent = "Edit entry";
+  $("submitBtn").textContent = "Save changes";
+  $("cancelEditBtn").style.display = "";
+  $("title").focus();
+}
+
+function cancelEdit() {
+  editingId = null;
+  $("entryForm").reset();
+  $("date").value = new Date().toISOString().slice(0, 10);
+  $("formTitle").textContent = "Add entry";
+  $("submitBtn").textContent = "Add";
+  $("cancelEditBtn").style.display = "none";
+}
+/* --- end edit --- */
 
 function filtered() {
   const m = $("monthFilter").value;
@@ -309,8 +349,9 @@ function render() {
     li.innerHTML =
       `<div class="entry-main"><span></span><small>${x.date} · ${x.category}</small></div>` +
       `<div><span class="amt ${x.type === "income" ? "in" : "out"}">${x.type === "income" ? "+" : "−"} ${fmt(x.amount)}</span>` +
-      `<button class="del" title="Delete">✕</button></div>`;
+      `<button class="edit" title="Edit">✎</button><button class="del" title="Delete">✕</button></div>`;
     li.querySelector(".entry-main span").textContent = x.title;
+    li.querySelector(".edit").addEventListener("click", () => startEdit(x.id));
     li.querySelector(".del").addEventListener("click", () => removeEntry(x.id));
     list.appendChild(li);
   }
@@ -347,6 +388,7 @@ function drawChart(monthEntries) {
 }
 
 $("entryForm").addEventListener("submit", addEntry);
+$("cancelEditBtn").addEventListener("click", cancelEdit);
 $("budgetForm").addEventListener("submit", setBudget);
 $("recurringForm").addEventListener("submit", addRecurring);
 $("exportBtn").addEventListener("click", exportCSV);

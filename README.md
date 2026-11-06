@@ -9,6 +9,7 @@
 ## Features
 
 - ➕ Add income & expenses with category, date and amount
+- ✏️ Edit any entry in place — click ✎, change it in the same form, save to update it (cancel leaves it untouched)
 - 📊 Live balance, this-month income and this-month expenses cards
 - 🔎 Filter history by month and category
 - 📥 Export the filtered history to CSV and import entries back from a CSV file
@@ -28,7 +29,7 @@ python3 -m http.server 8000   # http://localhost:8000
 
 ## Roadmap
 
-CSV export/import → monthly budgets with progress bars → recurring entries → multi-currency → yearly summary view. Full plan: [ROADMAP.md](ROADMAP.md).
+CSV export/import → monthly budgets with progress bars → recurring entries → edit entries → multi-currency → yearly summary view. Full plan: [ROADMAP.md](ROADMAP.md).
 
 ## License
 
