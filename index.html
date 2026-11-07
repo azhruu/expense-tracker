@@ -11,6 +11,14 @@
 <header>
   <h1>💰 ExpenseTracker</h1>
   <p>Personal income &amp; expense tracking — private by design, everything stays in your browser.</p>
+  <label class="currency-picker">Display currency
+    <select id="currencySelect">
+      <option value="PKR">PKR — Rs</option>
+      <option value="USD">USD — $</option>
+      <option value="EUR">EUR — €</option>
+    </select>
+  </label>
+  <p class="muted">Amounts can be entered in PKR, USD or EUR — totals convert at fixed reference rates (1 USD ≈ Rs 278, 1 EUR ≈ Rs 300).</p>
 </header>
 
 <section class="cards">
@@ -27,7 +35,12 @@
       <option value="income">Income</option>
     </select>
     <input id="title" placeholder="What was it? e.g. Groceries" required maxlength="60">
-    <input id="amount" type="number" placeholder="Amount (Rs)" min="1" step="any" required>
+    <input id="amount" type="number" placeholder="Amount" min="1" step="any" required>
+    <select id="currency">
+      <option value="PKR">PKR</option>
+      <option value="USD">USD</option>
+      <option value="EUR">EUR</option>
+    </select>
     <select id="category">
       <option>Food</option><option>Transport</option><option>Bills</option>
       <option>Shopping</option><option>Health</option><option>Entertainment</option>
@@ -76,7 +89,7 @@
       <option>Shopping</option><option>Health</option><option>Entertainment</option>
       <option>Salary</option><option>Other</option>
     </select>
-    <input id="budgetAmount" type="number" placeholder="Monthly limit (Rs)" min="1" step="any" required>
+    <input id="budgetAmount" type="number" placeholder="Monthly limit" min="1" step="any" required>
     <button type="submit">Set budget</button>
   </form>
   <div id="budgets"></div>
@@ -92,7 +105,12 @@
       <option value="income">Income</option>
     </select>
     <input id="recTitle" placeholder="What repeats? e.g. Salary" required maxlength="60">
-    <input id="recAmount" type="number" placeholder="Amount (Rs)" min="1" step="any" required>
+    <input id="recAmount" type="number" placeholder="Amount" min="1" step="any" required>
+    <select id="recCurrency">
+      <option value="PKR">PKR</option>
+      <option value="USD">USD</option>
+      <option value="EUR">EUR</option>
+    </select>
     <select id="recCategory">
       <option>Food</option><option>Transport</option><option>Bills</option>
       <option>Shopping</option><option>Health</option><option>Entertainment</option>

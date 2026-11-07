@@ -36,7 +36,7 @@ function setBudget(e) {
   const category = $("budgetCategory").value;
   const limit = parseFloat($("budgetAmount").value);
   if (!category || !(limit > 0)) return;
-  budgets[category] = limit;
+  budgets[category] = toPKR(limit, displayCurrency); // store in PKR
   saveBudgets();
   $("budgetForm").reset();
   render();
@@ -56,7 +56,7 @@ function renderBudgets(monthEntries) {
   for (const cat of names) {
     const limit = budgets[cat];
     const spent = monthEntries.filter((x) => x.type === "expense" && x.category === cat)
-      .reduce((s, x) => s + x.amount, 0);
+      .reduce((s, x) => s + entryPKR(x), 0);
     const p = budgetProgress(spent, limit);
     const row = document.createElement("div");
     row.className = "budget-row";
@@ -78,7 +78,56 @@ function renderBudgets(monthEntries) {
 }
 /* --- end budgets --- */
 
-const fmt = (n) => "Rs " + Math.round(n).toLocaleString("en-PK");
+/* --- Multi-currency: amounts are stored in the currency they were entered
+   in; every total converts through PKR (the base currency) at fixed
+   reference rates. Older entries without a currency are treated as PKR. --- */
+const CURRENCIES = {
+  PKR: { symbol: "Rs", rate: 1 },
+  USD: { symbol: "$", rate: 278 },
+  EUR: { symbol: "€", rate: 300 },
+};
+const CURRENCY_KEY = "expense-tracker-currency-v1";
+let displayCurrency = loadCurrency();
+
+function loadCurrency() {
+  try {
+    const c = localStorage.getItem(CURRENCY_KEY);
+    return CURRENCIES[c] ? c : "PKR";
+  } catch { return "PKR"; }
+}
+function saveCurrency() { localStorage.setItem(CURRENCY_KEY, displayCurrency); }
+
+/* Pure helpers (DOM-free, unit-testable in node). */
+function toPKR(amount, currency) {
+  return amount * (CURRENCIES[currency] || CURRENCIES.PKR).rate;
+}
+function fromPKR(pkr, currency) {
+  return pkr / (CURRENCIES[currency] || CURRENCIES.PKR).rate;
+}
+function entryPKR(x) { return toPKR(x.amount, x.currency || "PKR"); }
+
+/* Format a PKR amount in the selected display currency. */
+const fmt = (n) => {
+  const c = CURRENCIES[displayCurrency];
+  return c.symbol + " " + Math.round(fromPKR(n, displayCurrency)).toLocaleString("en-US");
+};
+
+function setCurrency(code) {
+  if (!CURRENCIES[code]) return;
+  displayCurrency = code;
+  saveCurrency();
+  $("currencySelect").value = code;
+  updateCurrencyPlaceholders();
+  render();
+}
+
+function updateCurrencyPlaceholders() {
+  const sym = CURRENCIES[displayCurrency].symbol;
+  $("amount").placeholder = "Amount (" + sym + ")";
+  $("budgetAmount").placeholder = "Monthly limit (" + sym + ")";
+  $("recAmount").placeholder = "Amount (" + sym + ")";
+}
+/* --- end multi-currency --- */
 const thisMonth = () => new Date().toISOString().slice(0, 7); // YYYY-MM
 
 /* --- Recurring entries: auto-added once per month --- */
@@ -110,7 +159,8 @@ function recurringDateForMonth(rec, monthStr) {
 function dueRecurring(list, applied, monthStr) {
   return list.filter((r) => !(applied[r.id] || []).includes(monthStr))
     .map((r, i) => ({ id: Date.now() + i, recurringId: r.id, type: r.type,
-      title: r.title, amount: r.amount, category: r.category,
+      title: r.title, amount: r.amount, currency: r.currency || "PKR",
+      category: r.category,
       date: recurringDateForMonth(r, monthStr) }));
 }
 
@@ -136,6 +186,7 @@ function addRecurring(e) {
     type: $("recType").value,
     title: $("recTitle").value.trim(),
     amount: parseFloat($("recAmount").value),
+    currency: $("recCurrency").value,
     category: $("recCategory").value,
     day: parseInt($("recDay").value, 10),
   };
@@ -166,7 +217,7 @@ function renderRecurring() {
     const li = document.createElement("li");
     li.innerHTML =
       `<div class="entry-main"><span></span><small></small></div>` +
-      `<div><span class="amt ${r.type === "income" ? "in" : "out"}">${r.type === "income" ? "+" : "−"} ${fmt(r.amount)}</span>` +
+      `<div><span class="amt ${r.type === "income" ? "in" : "out"}">${r.type === "income" ? "+" : "−"} ${fmt(entryPKR(r))}</span>` +
       `<button class="del" title="Delete recurring entry">✕</button></div>`;
     li.querySelector(".entry-main span").textContent = r.title;
     li.querySelector(".entry-main small").textContent =
@@ -183,6 +234,7 @@ function addEntry(e) {
     type: $("type").value,
     title: $("title").value.trim(),
     amount: parseFloat($("amount").value),
+    currency: $("currency").value,
     category: $("category").value,
     date: $("date").value,
   };
@@ -223,6 +275,7 @@ function startEdit(id) {
   $("type").value = x.type;
   $("title").value = x.title;
   $("amount").value = x.amount;
+  $("currency").value = x.currency || "PKR";
   $("category").value = x.category;
   $("date").value = x.date;
   $("formTitle").textContent = "Edit entry";
@@ -255,9 +308,9 @@ function csvEscape(v) {
 }
 
 function toCSV(rows) {
-  const lines = [["type", "title", "amount", "category", "date"].join(",")];
+  const lines = [["type", "title", "amount", "currency", "category", "date"].join(",")];
   for (const x of rows)
-    lines.push([x.type, x.title, x.amount, x.category, x.date].map(csvEscape).join(","));
+    lines.push([x.type, x.title, x.amount, x.currency || "PKR", x.category, x.date].map(csvEscape).join(","));
   return lines.join("\n") + "\n";
 }
 
@@ -293,12 +346,18 @@ function parseEntriesCSV(text) {
   const imported = [];
   let skipped = 0;
   for (const r of data) {
-    const [type, title, amount, category, date] = r.map((v) => (v || "").trim());
+    // New format: type,title,amount,currency,category,date.
+    // Old 5-column files (no currency) still import as PKR.
+    const [type, title, amount, maybeCurrency, maybeCategory, maybeDate] = r.map((v) => (v || "").trim());
+    const hasCurrency = r.length >= 6;
+    const currency = hasCurrency && CURRENCIES[maybeCurrency] ? maybeCurrency : "PKR";
+    const category = hasCurrency ? maybeCategory : maybeCurrency;
+    const date = hasCurrency ? maybeDate : maybeCategory;
     const amt = parseFloat(amount);
     if ((type !== "income" && type !== "expense") || !title || !(amt > 0)
         || !/^\d{4}-\d{2}-\d{2}$/.test(date)) { skipped++; continue; }
     imported.push({ id: Date.now() + imported.length, type, title, amount: amt,
-                    category: category || "Other", date });
+                    currency, category: category || "Other", date });
   }
   return { imported, skipped };
 }
@@ -331,10 +390,10 @@ function importCSVFile(file) {
 function render() {
   const month = thisMonth();
   const monthEntries = entries.filter((x) => x.date.startsWith(month));
-  const income = monthEntries.filter((x) => x.type === "income").reduce((s, x) => s + x.amount, 0);
-  const expenses = monthEntries.filter((x) => x.type === "expense").reduce((s, x) => s + x.amount, 0);
-  const allIncome = entries.filter((x) => x.type === "income").reduce((s, x) => s + x.amount, 0);
-  const allExpenses = entries.filter((x) => x.type === "expense").reduce((s, x) => s + x.amount, 0);
+  const income = monthEntries.filter((x) => x.type === "income").reduce((s, x) => s + entryPKR(x), 0);
+  const expenses = monthEntries.filter((x) => x.type === "expense").reduce((s, x) => s + entryPKR(x), 0);
+  const allIncome = entries.filter((x) => x.type === "income").reduce((s, x) => s + entryPKR(x), 0);
+  const allExpenses = entries.filter((x) => x.type === "expense").reduce((s, x) => s + entryPKR(x), 0);
 
   $("balance").textContent = fmt(allIncome - allExpenses);
   $("income").textContent = fmt(income);
@@ -348,7 +407,7 @@ function render() {
     const li = document.createElement("li");
     li.innerHTML =
       `<div class="entry-main"><span></span><small>${x.date} · ${x.category}</small></div>` +
-      `<div><span class="amt ${x.type === "income" ? "in" : "out"}">${x.type === "income" ? "+" : "−"} ${fmt(x.amount)}</span>` +
+      `<div><span class="amt ${x.type === "income" ? "in" : "out"}">${x.type === "income" ? "+" : "−"} ${fmt(entryPKR(x))}</span>` +
       `<button class="edit" title="Edit">✎</button><button class="del" title="Delete">✕</button></div>`;
     li.querySelector(".entry-main span").textContent = x.title;
     li.querySelector(".edit").addEventListener("click", () => startEdit(x.id));
@@ -366,7 +425,7 @@ function drawChart(monthEntries) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const byCat = {};
   for (const x of monthEntries)
-    if (x.type === "expense") byCat[x.category] = (byCat[x.category] || 0) + x.amount;
+    if (x.type === "expense") byCat[x.category] = (byCat[x.category] || 0) + entryPKR(x);
   const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
   if (!cats.length) {
     ctx.fillStyle = "#8b949e"; ctx.font = "15px sans-serif";
@@ -395,7 +454,10 @@ $("exportBtn").addEventListener("click", exportCSV);
 $("importFile").addEventListener("change", (e) => { importCSVFile(e.target.files[0]); e.target.value = ""; });
 $("monthFilter").addEventListener("change", render);
 $("categoryFilter").addEventListener("change", render);
+$("currencySelect").addEventListener("change", (e) => setCurrency(e.target.value));
 $("date").value = new Date().toISOString().slice(0, 10);
 $("monthFilter").value = thisMonth();
+$("currencySelect").value = displayCurrency;
+updateCurrencyPlaceholders();
 applyRecurring();
 render();

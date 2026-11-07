@@ -7,6 +7,8 @@ body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;background:var(-
 header{padding:34px 20px 8px;max-width:940px;margin:auto}
 header h1{margin:0 0 6px;font-size:30px}
 header p{color:var(--muted);margin:0}
+.currency-picker{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:14px;margin-top:14px}
+.currency-picker select{padding:6px 9px}
 .cards{display:flex;gap:14px;flex-wrap:wrap;max-width:940px;margin:20px auto;padding:0 20px}
 .card{flex:1;min-width:200px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px}
 .card span{color:var(--muted);font-size:13px;display:block;margin-bottom:6px}

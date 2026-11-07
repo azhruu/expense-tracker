@@ -10,7 +10,7 @@ Each item lands as one complete, tested change.
 - [x] Monthly budgets per category with progress bars
 - [x] Recurring entries (salary, bills) auto-added each month
 - [x] Edit an existing entry
-- [ ] Multi-currency support (PKR / USD / EUR)
+- [x] Multi-currency support (PKR / USD / EUR)
 - [ ] Yearly summary view with monthly trend line chart
 - [ ] Search entries by title
 - [ ] Dark/light theme toggle
