@@ -81,6 +81,23 @@
 </section>
 
 <section class="panel">
+  <div class="row">
+    <h2>Yearly summary</h2>
+    <label class="currency-picker">Year
+      <input id="yearFilter" type="number" min="2000" max="2100" step="1">
+    </label>
+  </div>
+  <div class="cards year-cards">
+    <div class="card in"><span>Income (year)</span><strong id="yearIncome">Rs 0</strong></div>
+    <div class="card out"><span>Expenses (year)</span><strong id="yearExpenses">Rs 0</strong></div>
+    <div class="card"><span>Net (year)</span><strong id="yearNet">Rs 0</strong></div>
+  </div>
+  <canvas id="yearChart" width="900" height="300"></canvas>
+  <p class="muted">Green line: monthly income · red line: monthly expenses.</p>
+  <p id="yearNote" class="muted"></p>
+</section>
+
+<section class="panel">
   <h2>Monthly budgets</h2>
   <p class="muted">Set a spending limit per category — progress is measured against this month's expenses.</p>
   <form id="budgetForm">

@@ -15,6 +15,7 @@
 - 💱 Multi-currency support (PKR / USD / EUR) — enter amounts in any of the three currencies, switch the display currency, and all totals, budgets and the chart convert at fixed reference rates; CSV export/import carries the currency column
 - 📥 Export the filtered history to CSV and import entries back from a CSV file
 - 📈 Spending-by-category bar chart (canvas, zero libraries)
+- 📅 Yearly summary view — pick a year, see yearly income/expense/net totals and a monthly income-vs-expenses trend line chart (canvas, zero libraries), with best and worst months called out
 - 💰 Monthly budgets per category with progress bars (over-budget and near-limit warnings)
 - 🔁 Recurring entries (salary, bills) auto-added once each month on a chosen day
 - 💾 Automatic persistence in `localStorage` — refresh-proof
@@ -30,7 +31,7 @@ python3 -m http.server 8000   # http://localhost:8000
 
 ## Roadmap
 
-CSV export/import → monthly budgets with progress bars → recurring entries → edit entries → multi-currency → yearly summary view. Full plan: [ROADMAP.md](ROADMAP.md).
+CSV export/import → monthly budgets with progress bars → recurring entries → edit entries → multi-currency → yearly summary view → search entries. Full plan: [ROADMAP.md](ROADMAP.md).
 
 ## License
 

@@ -387,6 +387,92 @@ function importCSVFile(file) {
 }
 /* --- end CSV --- */
 
+/* --- Yearly summary: monthly income/expense totals + trend line chart --- */
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/* Pure helper (DOM-free, unit-testable in node): per-month income and
+   expense totals (in PKR) for one year; months with no entries stay 0. */
+function monthlyTotals(list, year) {
+  const months = MONTHS.map(() => ({ income: 0, expenses: 0 }));
+  for (const x of list) {
+    if (!x.date || !x.date.startsWith(String(year) + "-")) continue;
+    const m = parseInt(x.date.slice(5, 7), 10) - 1;
+    if (m < 0 || m > 11) continue;
+    if (x.type === "income") months[m].income += entryPKR(x);
+    else if (x.type === "expense") months[m].expenses += entryPKR(x);
+  }
+  return months;
+}
+
+function selectedYear() {
+  const y = parseInt($("yearFilter").value, 10);
+  return Number.isFinite(y) ? Math.min(2100, Math.max(2000, y)) : new Date().getFullYear();
+}
+
+function drawYearChart() {
+  const year = selectedYear();
+  $("yearFilter").value = year;
+  const months = monthlyTotals(entries, year);
+  const yearIncome = months.reduce((s, m) => s + m.income, 0);
+  const yearExpenses = months.reduce((s, m) => s + m.expenses, 0);
+  $("yearIncome").textContent = fmt(yearIncome);
+  $("yearExpenses").textContent = fmt(yearExpenses);
+  $("yearNet").textContent = fmt(yearIncome - yearExpenses);
+
+  const nets = months.map((m) => m.income - m.expenses);
+  const best = nets.indexOf(Math.max(...nets));
+  const worst = nets.indexOf(Math.min(...nets));
+  $("yearNote").textContent = (yearIncome || yearExpenses)
+    ? "Best month: " + MONTHS[best] + " (" + fmt(nets[best]) + ") · " +
+      "Worst month: " + MONTHS[worst] + " (" + fmt(nets[worst]) + ")."
+    : "No entries in " + year + " yet.";
+
+  const canvas = $("yearChart");
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const maxVal = Math.max(1, ...months.flatMap((m) => [m.income, m.expenses]));
+  const padL = 74, padR = 20, padT = 24, padB = 30;
+  const plotW = canvas.width - padL - padR;
+  const plotH = canvas.height - padT - padB;
+  const xAt = (i) => padL + (plotW * i) / 11;
+  const yAt = (v) => padT + plotH - (plotH * v) / maxVal;
+
+  // Gridlines + y-axis labels (4 steps).
+  ctx.strokeStyle = "#30363d"; ctx.fillStyle = "#8b949e";
+  ctx.font = "12px sans-serif"; ctx.textAlign = "right";
+  for (let g = 0; g <= 4; g++) {
+    const v = (maxVal * g) / 4;
+    const y = yAt(v);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(canvas.width - padR, y); ctx.stroke();
+    ctx.fillText(fmt(v), padL - 8, y + 4);
+  }
+  // X-axis month labels.
+  ctx.textAlign = "center";
+  months.forEach((_, i) => ctx.fillText(MONTHS[i], xAt(i), canvas.height - 10));
+  // Legend.
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#3fb950"; ctx.fillText("— Income", padL, 14);
+  ctx.fillStyle = "#f85149"; ctx.fillText("— Expenses", padL + 90, 14);
+
+  const drawLine = (color, pick) => {
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2;
+    ctx.beginPath();
+    months.forEach((m, i) => {
+      const x = xAt(i), y = yAt(pick(m));
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    months.forEach((m, i) => {
+      ctx.beginPath(); ctx.arc(xAt(i), yAt(pick(m)), 3.5, 0, Math.PI * 2); ctx.fill();
+    });
+  };
+  drawLine("#3fb950", (m) => m.income);
+  drawLine("#f85149", (m) => m.expenses);
+  ctx.lineWidth = 1;
+}
+/* --- end yearly summary --- */
+
 function render() {
   const month = thisMonth();
   const monthEntries = entries.filter((x) => x.date.startsWith(month));
@@ -415,6 +501,7 @@ function render() {
     list.appendChild(li);
   }
   drawChart(monthEntries);
+  drawYearChart();
   renderBudgets(monthEntries);
   renderRecurring();
 }
@@ -454,9 +541,11 @@ $("exportBtn").addEventListener("click", exportCSV);
 $("importFile").addEventListener("change", (e) => { importCSVFile(e.target.files[0]); e.target.value = ""; });
 $("monthFilter").addEventListener("change", render);
 $("categoryFilter").addEventListener("change", render);
+$("yearFilter").addEventListener("change", render);
 $("currencySelect").addEventListener("change", (e) => setCurrency(e.target.value));
 $("date").value = new Date().toISOString().slice(0, 10);
 $("monthFilter").value = thisMonth();
+$("yearFilter").value = new Date().getFullYear();
 $("currencySelect").value = displayCurrency;
 updateCurrencyPlaceholders();
 applyRecurring();

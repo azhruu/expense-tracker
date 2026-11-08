@@ -11,7 +11,7 @@ Each item lands as one complete, tested change.
 - [x] Recurring entries (salary, bills) auto-added each month
 - [x] Edit an existing entry
 - [x] Multi-currency support (PKR / USD / EUR)
-- [ ] Yearly summary view with monthly trend line chart
+- [x] Yearly summary view with monthly trend line chart
 - [ ] Search entries by title
 - [ ] Dark/light theme toggle
 - [ ] Sample-data button for first-time users

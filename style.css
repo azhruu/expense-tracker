@@ -35,6 +35,8 @@ ul#entries li:last-child{border-bottom:none}
 .del{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:2px 6px}
 .edit{background:none;border:none;color:var(--accent);cursor:pointer;font-size:15px;padding:2px 6px}
 .muted{color:var(--muted)}
+.year-cards{margin:14px 0}
+.year-cards .card{min-width:160px}
 canvas{width:100%;height:auto}
 .budget-row{margin:14px 0}
 .budget-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
