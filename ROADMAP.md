@@ -12,7 +12,7 @@ Each item lands as one complete, tested change.
 - [x] Edit an existing entry
 - [x] Multi-currency support (PKR / USD / EUR)
 - [x] Yearly summary view with monthly trend line chart
-- [ ] Search entries by title
+- [x] Search entries by title
 - [ ] Dark/light theme toggle
 - [ ] Sample-data button for first-time users
 - [ ] Print-friendly monthly report

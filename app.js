@@ -294,12 +294,25 @@ function cancelEdit() {
 }
 /* --- end edit --- */
 
+/* --- Search entries by title --- */
+
+/* Pure helper (DOM-free, unit-testable in node): case-insensitive substring
+   match on the entry title; a blank query matches everything. */
+function searchMatches(title, query) {
+  const q = String(query || "").trim().toLowerCase();
+  if (!q) return true;
+  return String(title || "").toLowerCase().includes(q);
+}
+
 function filtered() {
   const m = $("monthFilter").value;
   const c = $("categoryFilter").value;
+  const q = $("searchInput").value;
   return entries.filter((x) =>
-    (!m || x.date.startsWith(m)) && (!c || x.category === c));
+    (!m || x.date.startsWith(m)) && (!c || x.category === c)
+    && searchMatches(x.title, q));
 }
+/* --- end search --- */
 
 /* --- CSV export / import --- */
 function csvEscape(v) {
@@ -489,6 +502,10 @@ function render() {
   list.innerHTML = "";
   const rows = filtered();
   $("emptyMsg").style.display = rows.length ? "none" : "block";
+  const q = $("searchInput").value.trim();
+  $("emptyMsg").textContent = (q && !rows.length)
+    ? "No entries match “" + q + "” — try a different title."
+    : "No entries yet — add your first one above.";
   for (const x of rows) {
     const li = document.createElement("li");
     li.innerHTML =
@@ -541,6 +558,7 @@ $("exportBtn").addEventListener("click", exportCSV);
 $("importFile").addEventListener("change", (e) => { importCSVFile(e.target.files[0]); e.target.value = ""; });
 $("monthFilter").addEventListener("change", render);
 $("categoryFilter").addEventListener("change", render);
+$("searchInput").addEventListener("input", render);
 $("yearFilter").addEventListener("change", render);
 $("currencySelect").addEventListener("change", (e) => setCurrency(e.target.value));
 $("date").value = new Date().toISOString().slice(0, 10);
