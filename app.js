@@ -128,6 +128,45 @@ function updateCurrencyPlaceholders() {
   $("recAmount").placeholder = "Amount (" + sym + ")";
 }
 /* --- end multi-currency --- */
+
+/* --- Dark/light theme toggle --- */
+const THEME_KEY = "expense-tracker-theme-v1";
+
+/* Stored choice wins; otherwise follow the OS preference; dark by default. */
+function loadTheme() {
+  try {
+    const t = localStorage.getItem(THEME_KEY);
+    if (t === "light" || t === "dark") return t;
+  } catch { /* private mode etc. — fall through to the default */ }
+  try {
+    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches)
+      return "light";
+  } catch { /* matchMedia unavailable — fall through */ }
+  return "dark";
+}
+let theme = loadTheme();
+
+/* Chart colours follow the theme so labels and gridlines stay readable. */
+function chartColors() {
+  return theme === "light"
+    ? { grid: "#d0d7de", muted: "#57606a", text: "#1f2328" }
+    : { grid: "#30363d", muted: "#8b949e", text: "#e6edf3" };
+}
+
+function applyTheme() {
+  document.documentElement.dataset.theme = theme;
+  $("themeToggle").textContent = theme === "dark" ? "☀️ Light" : "🌙 Dark";
+  $("themeToggle").title = theme === "dark" ? "Switch to light theme" : "Switch to dark theme";
+}
+
+function toggleTheme() {
+  theme = theme === "dark" ? "light" : "dark";
+  try { localStorage.setItem(THEME_KEY, theme); } catch { /* ignore */ }
+  applyTheme();
+  render(); // redraw the charts with the new theme colours
+}
+/* --- end theme toggle --- */
+
 const thisMonth = () => new Date().toISOString().slice(0, 7); // YYYY-MM
 
 /* --- Recurring entries: auto-added once per month --- */
@@ -452,7 +491,8 @@ function drawYearChart() {
   const yAt = (v) => padT + plotH - (plotH * v) / maxVal;
 
   // Gridlines + y-axis labels (4 steps).
-  ctx.strokeStyle = "#30363d"; ctx.fillStyle = "#8b949e";
+  const cc = chartColors();
+  ctx.strokeStyle = cc.grid; ctx.fillStyle = cc.muted;
   ctx.font = "12px sans-serif"; ctx.textAlign = "right";
   for (let g = 0; g <= 4; g++) {
     const v = (maxVal * g) / 4;
@@ -532,7 +572,7 @@ function drawChart(monthEntries) {
     if (x.type === "expense") byCat[x.category] = (byCat[x.category] || 0) + entryPKR(x);
   const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
   if (!cats.length) {
-    ctx.fillStyle = "#8b949e"; ctx.font = "15px sans-serif";
+    ctx.fillStyle = chartColors().muted; ctx.font = "15px sans-serif";
     ctx.fillText("No expenses this month yet.", 12, 30);
     return;
   }
@@ -543,7 +583,7 @@ function drawChart(monthEntries) {
     const x = 30 + i * (barW + 24);
     ctx.fillStyle = "#58a6ff";
     ctx.fillRect(x, 200 - h, barW, h);
-    ctx.fillStyle = "#e6edf3"; ctx.font = "12px sans-serif"; ctx.textAlign = "center";
+    ctx.fillStyle = chartColors().text; ctx.font = "12px sans-serif"; ctx.textAlign = "center";
     ctx.fillText(cat, x + barW / 2, 220);
     ctx.fillText(fmt(val), x + barW / 2, 200 - h - 8);
     ctx.textAlign = "left";
@@ -561,10 +601,12 @@ $("categoryFilter").addEventListener("change", render);
 $("searchInput").addEventListener("input", render);
 $("yearFilter").addEventListener("change", render);
 $("currencySelect").addEventListener("change", (e) => setCurrency(e.target.value));
+$("themeToggle").addEventListener("click", toggleTheme);
 $("date").value = new Date().toISOString().slice(0, 10);
 $("monthFilter").value = thisMonth();
 $("yearFilter").value = new Date().getFullYear();
 $("currencySelect").value = displayCurrency;
 updateCurrencyPlaceholders();
+applyTheme();
 applyRecurring();
 render();

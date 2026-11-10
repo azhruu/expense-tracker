@@ -1,6 +1,14 @@
 :root{
   --bg:#0d1117; --panel:#161b22; --border:#30363d; --text:#e6edf3;
   --muted:#8b949e; --green:#3fb950; --red:#f85149; --accent:#58a6ff;
+  --input-bg:#0d1117; --btn-secondary:#21262d;
+}
+/* Light theme: same layout, lighter palette. Switched by setting
+   data-theme="light" on <html> (see app.js); dark is the default. */
+[data-theme="light"]{
+  --bg:#f6f8fa; --panel:#ffffff; --border:#d0d7de; --text:#1f2328;
+  --muted:#57606a; --green:#1a7f37; --red:#cf222e; --accent:#0969da;
+  --input-bg:#ffffff; --btn-secondary:#f6f8fa;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -17,10 +25,10 @@ header p{color:var(--muted);margin:0}
 .panel{max-width:940px;margin:16px auto;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
 .panel h2{margin:0 0 14px;font-size:19px}
 form{display:flex;gap:10px;flex-wrap:wrap}
-input,select,button{background:#0d1117;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px}
+input,select,button{background:var(--input-bg);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px}
 button{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;cursor:pointer}
 button:hover{filter:brightness(1.12)}
-button.secondary,.file-label{background:#21262d;border-color:var(--border);color:var(--text);font-weight:600;cursor:pointer}
+button.secondary,.file-label{background:var(--btn-secondary);border-color:var(--border);color:var(--text);font-weight:600;cursor:pointer}
 .csv-row{margin-bottom:10px}
 .file-label{border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px}
 .file-label:hover{filter:brightness(1.12)}
@@ -42,10 +50,11 @@ canvas{width:100%;height:auto}
 .budget-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .budget-top strong{font-size:15px}
 .budget-top small{color:var(--muted)}
-.bar{height:10px;background:#0d1117;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:6px}
+.bar{height:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:6px}
 .bar-fill{height:100%;background:var(--accent)}
 .bar-fill.warn{background:#d29922}
 .bar-fill.over{background:var(--red)}
 .budget-note{color:var(--muted);font-size:13px;margin:4px 0 0}
 .budget-note.over{color:var(--red)}
 footer{text-align:center;color:var(--muted);padding:26px;font-size:13px}
+.theme-toggle{margin-top:14px}

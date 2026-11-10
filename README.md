@@ -19,6 +19,7 @@
 - 💰 Monthly budgets per category with progress bars (over-budget and near-limit warnings)
 - 🔁 Recurring entries (salary, bills) auto-added once each month on a chosen day
 - 💾 Automatic persistence in `localStorage` — refresh-proof
+- 🌑 Dark/light theme toggle — header button switches the whole UI (including chart colours), saved in `localStorage`, and follows your OS preference on first visit
 - 🌑 Clean dark UI, mobile-friendly
 
 ## Run it
