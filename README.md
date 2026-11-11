@@ -18,6 +18,7 @@
 - 📅 Yearly summary view — pick a year, see yearly income/expense/net totals and a monthly income-vs-expenses trend line chart (canvas, zero libraries), with best and worst months called out
 - 💰 Monthly budgets per category with progress bars (over-budget and near-limit warnings)
 - 🔁 Recurring entries (salary, bills) auto-added once each month on a chosen day
+- 📊 Try sample data — one click loads a realistic month of demo entries (salary, groceries, bills…) so first-time users can see the cards, charts and yearly view at work; “Remove sample data” clears just those entries, never your own
 - 💾 Automatic persistence in `localStorage` — refresh-proof
 - 🌑 Dark/light theme toggle — header button switches the whole UI (including chart colours), saved in `localStorage`, and follows your OS preference on first visit
 - 🌑 Clean dark UI, mobile-friendly
@@ -32,7 +33,7 @@ python3 -m http.server 8000   # http://localhost:8000
 
 ## Roadmap
 
-CSV export/import → monthly budgets with progress bars → recurring entries → edit entries → multi-currency → yearly summary view → search entries → dark/light theme toggle. Full plan: [ROADMAP.md](ROADMAP.md).
+CSV export/import → monthly budgets with progress bars → recurring entries → edit entries → multi-currency → yearly summary view → search entries → dark/light theme toggle → sample data. Full plan: [ROADMAP.md](ROADMAP.md).
 
 ## License
 

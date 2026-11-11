@@ -353,6 +353,59 @@ function filtered() {
 }
 /* --- end search --- */
 
+/* --- Sample data for first-time users ---
+   One click loads a realistic month of entries (salary, groceries, bills…)
+   so the cards, charts and yearly view have something to show. Dates are
+   built around `ref` so the demo always looks current: most entries fall
+   in its month, a few in the month before so the yearly trend line has
+   two points. Sample entries carry `sample: true` so they can be removed
+   again without touching the user's own entries. */
+
+/* Pure helper (DOM-free, unit-testable in node). */
+function sampleEntries(ref) {
+  const y = ref.getFullYear(), m = ref.getMonth();
+  const d = (monthOffset, day) =>
+    new Date(y, m + monthOffset, day).toISOString().slice(0, 10);
+  const base = Date.now();
+  const rows = [
+    // [monthOffset, day, type, title, amount, category]
+    [0, 1, "income", "Salary", 250000, "Salary"],
+    [0, 2, "expense", "Groceries — weekly shop", 18500, "Food"],
+    [0, 3, "expense", "Petrol", 9000, "Transport"],
+    [0, 5, "expense", "Electricity bill", 12400, "Bills"],
+    [0, 7, "expense", "Dinner with friends", 3500, "Entertainment"],
+    [0, 9, "expense", "Pharmacy", 2800, "Health"],
+    [0, 12, "expense", "Groceries — weekly shop", 9200, "Food"],
+    [0, 14, "expense", "Internet bill", 4500, "Bills"],
+    [0, 18, "expense", "New shoes", 6800, "Shopping"],
+    [0, 20, "expense", "Bus fare", 1500, "Transport"],
+    [0, 22, "income", "Freelance project", 45000, "Other"],
+    [0, 24, "expense", "Groceries — weekly shop", 11000, "Food"],
+    [-1, 1, "income", "Salary", 250000, "Salary"],
+    [-1, 3, "expense", "Groceries — weekly shop", 21000, "Food"],
+    [-1, 6, "expense", "Electricity bill", 11800, "Bills"],
+    [-1, 10, "expense", "Petrol", 8500, "Transport"],
+  ];
+  return rows.map(([off, day, type, title, amount, category], i) => ({
+    id: base + i, type, title, amount, currency: "PKR", category,
+    date: d(off, day), sample: true,
+  }));
+}
+
+function loadSampleData() {
+  if (entries.length) return; // only offered on an empty tracker
+  entries = sampleEntries(new Date());
+  save();
+  render();
+}
+
+function clearSampleData() {
+  entries = entries.filter((x) => !x.sample);
+  save();
+  render();
+}
+/* --- end sample data --- */
+
 /* --- CSV export / import --- */
 function csvEscape(v) {
   const s = String(v);
@@ -542,6 +595,8 @@ function render() {
   list.innerHTML = "";
   const rows = filtered();
   $("emptyMsg").style.display = rows.length ? "none" : "block";
+  $("sampleDataBtn").style.display = entries.length ? "none" : "";
+  $("clearSampleBtn").style.display = entries.some((x) => x.sample) ? "" : "none";
   const q = $("searchInput").value.trim();
   $("emptyMsg").textContent = (q && !rows.length)
     ? "No entries match “" + q + "” — try a different title."
@@ -595,6 +650,8 @@ $("cancelEditBtn").addEventListener("click", cancelEdit);
 $("budgetForm").addEventListener("submit", setBudget);
 $("recurringForm").addEventListener("submit", addRecurring);
 $("exportBtn").addEventListener("click", exportCSV);
+$("sampleDataBtn").addEventListener("click", loadSampleData);
+$("clearSampleBtn").addEventListener("click", clearSampleData);
 $("importFile").addEventListener("change", (e) => { importCSVFile(e.target.files[0]); e.target.value = ""; });
 $("monthFilter").addEventListener("change", render);
 $("categoryFilter").addEventListener("change", render);

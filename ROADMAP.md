@@ -14,5 +14,5 @@ Each item lands as one complete, tested change.
 - [x] Yearly summary view with monthly trend line chart
 - [x] Search entries by title
 - [x] Dark/light theme toggle
-- [ ] Sample-data button for first-time users
+- [x] Sample-data button for first-time users
 - [ ] Print-friendly monthly report
