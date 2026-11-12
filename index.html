@@ -69,6 +69,7 @@
   </div>
   <div class="row csv-row">
     <button type="button" id="exportBtn" class="secondary">⬇ Export CSV</button>
+    <button type="button" id="printBtn" class="secondary">🖨 Print monthly report</button>
     <label class="secondary file-label" for="importFile">⬆ Import CSV</label>
     <input id="importFile" type="file" accept=".csv,text/csv" hidden>
   </div>
@@ -148,6 +149,31 @@
 </section>
 
 <footer>ExpenseTracker · data stored locally in your browser (localStorage) · MIT</footer>
+
+<!-- Print-friendly monthly report: hidden on screen, revealed by @media
+     print (see style.css). Filled in by renderReport() in app.js. -->
+<section id="printReport" aria-hidden="true">
+  <h1>ExpenseTracker — Monthly report</h1>
+  <p id="printMonth"></p>
+  <h2>Summary</h2>
+  <table class="print-table"><tbody id="printSummary"></tbody></table>
+  <h2 id="printCategoriesTitle">Spending by category</h2>
+  <table class="print-table" id="printCategoriesTable">
+    <thead><tr><th>Category</th><th>Entries</th><th class="num">Spent</th></tr></thead>
+    <tbody id="printCategories"></tbody>
+  </table>
+  <h2 id="printEntriesTitle">Entries</h2>
+  <table class="print-table" id="printEntriesTable">
+    <thead><tr><th>Date</th><th>Title</th><th>Category</th><th class="num">Amount</th></tr></thead>
+    <tbody id="printEntries"></tbody>
+  </table>
+  <h2 id="printBudgetsTitle">Budgets</h2>
+  <table class="print-table" id="printBudgetsTable">
+    <thead><tr><th>Category</th><th class="num">Spent</th><th class="num">Limit</th><th>Status</th></tr></thead>
+    <tbody id="printBudgets"></tbody>
+  </table>
+  <p id="printFoot"></p>
+</section>
 
 <script src="app.js"></script>
 </body>

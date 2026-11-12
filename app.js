@@ -495,6 +495,8 @@ function importCSVFile(file) {
 /* --- Yearly summary: monthly income/expense totals + trend line chart --- */
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS_FULL = ["January", "February", "March", "April", "May", "June",
+                     "July", "August", "September", "October", "November", "December"];
 
 /* Pure helper (DOM-free, unit-testable in node): per-month income and
    expense totals (in PKR) for one year; months with no entries stay 0. */
@@ -579,6 +581,101 @@ function drawYearChart() {
 }
 /* --- end yearly summary --- */
 
+/* --- Print-friendly monthly report ---
+   A printable summary of the month picked in the month filter: totals,
+   spending by category, budget status and the full entry list. The report
+   is built into a hidden #printReport section that @media print reveals
+   while hiding the app (see style.css), so the screen layout is untouched.
+   Amounts use the selected display currency, like the rest of the app. */
+
+/* Pure helper (DOM-free, unit-testable in node): "2026-11" -> "November 2026". */
+function monthLabel(monthStr) {
+  const [y, m] = String(monthStr || "").split("-").map(Number);
+  if (!Number.isFinite(y) || m < 1 || m > 12) return monthStr;
+  return MONTHS_FULL[m - 1] + " " + y;
+}
+
+/* Pure helper (DOM-free, unit-testable in node): everything the report
+   needs for one month — totals in PKR, expense categories sorted by spend,
+   entries sorted by date, and budget status per category. Entries from
+   other months are ignored. */
+function buildReport(list, budgetMap, monthStr) {
+  const rows = list.filter((x) => x.date && x.date.startsWith(monthStr))
+    .slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  let income = 0, expenses = 0;
+  const byCat = {};
+  for (const x of rows) {
+    const v = entryPKR(x);
+    if (x.type === "income") income += v;
+    else if (x.type === "expense") {
+      expenses += v;
+      const c = byCat[x.category] || (byCat[x.category] = { category: x.category, amount: 0, count: 0 });
+      c.amount += v; c.count += 1;
+    }
+  }
+  const categories = Object.values(byCat).sort((a, b) => b.amount - a.amount);
+  const budgetRows = Object.keys(budgetMap || {}).sort().map((cat) => {
+    const limit = budgetMap[cat];
+    const spent = (byCat[cat] || { amount: 0 }).amount;
+    const p = budgetProgress(spent, limit);
+    return { category: cat, spent, limit, pct: p.pct, status: p.status };
+  });
+  return { month: monthStr, income, expenses, balance: income - expenses,
+           categories, rows, budgets: budgetRows };
+}
+
+/* Append one row of plain-text cells to a <tbody>; the amount column
+   (numIdx) gets the .num class so print CSS can right-align it. */
+function printRow(tbody, cells, numIdx) {
+  const tr = document.createElement("tr");
+  cells.forEach((text, i) => {
+    const td = document.createElement("td");
+    td.textContent = text;
+    if (i === numIdx) td.className = "num";
+    tr.appendChild(td);
+  });
+  tbody.appendChild(tr);
+}
+
+function fillPrintTable(tbody, rows, numIdx) {
+  tbody.innerHTML = "";
+  for (const cells of rows) printRow(tbody, cells, numIdx);
+}
+
+function togglePrintBlock(titleId, tableId, show) {
+  $(titleId).style.display = show ? "" : "none";
+  $(tableId).style.display = show ? "" : "none";
+}
+
+function renderReport() {
+  const month = $("monthFilter").value || thisMonth();
+  const report = buildReport(entries, budgets, month);
+  $("printMonth").textContent = monthLabel(month) + " · " + report.rows.length + " entries";
+  fillPrintTable($("printSummary"), [
+    ["Income", fmt(report.income)],
+    ["Expenses", fmt(report.expenses)],
+    ["Balance", fmt(report.balance)],
+  ], 1);
+  togglePrintBlock("printCategoriesTitle", "printCategoriesTable", report.categories.length > 0);
+  fillPrintTable($("printCategories"), report.categories.map((c) =>
+    [c.category, String(c.count), fmt(c.amount)]), 2);
+  togglePrintBlock("printEntriesTitle", "printEntriesTable", report.rows.length > 0);
+  fillPrintTable($("printEntries"), report.rows.map((x) =>
+    [x.date, x.title, x.category, (x.type === "income" ? "+" : "−") + " " + fmt(entryPKR(x))]), 3);
+  togglePrintBlock("printBudgetsTitle", "printBudgetsTable", report.budgets.length > 0);
+  fillPrintTable($("printBudgets"), report.budgets.map((b) =>
+    [b.category, fmt(b.spent), fmt(b.limit),
+     b.status === "over" ? "Over by " + fmt(b.spent - b.limit) : b.pct + "% used"]), 1);
+  $("printFoot").textContent = "Printed " + new Date().toLocaleDateString("en-GB")
+    + " · ExpenseTracker — amounts in " + displayCurrency + " · data stays in your browser";
+}
+
+function printReport() {
+  renderReport();
+  window.print();
+}
+/* --- end print-friendly monthly report --- */
+
 function render() {
   const month = thisMonth();
   const monthEntries = entries.filter((x) => x.date.startsWith(month));
@@ -650,6 +747,7 @@ $("cancelEditBtn").addEventListener("click", cancelEdit);
 $("budgetForm").addEventListener("submit", setBudget);
 $("recurringForm").addEventListener("submit", addRecurring);
 $("exportBtn").addEventListener("click", exportCSV);
+$("printBtn").addEventListener("click", printReport);
 $("sampleDataBtn").addEventListener("click", loadSampleData);
 $("clearSampleBtn").addEventListener("click", clearSampleData);
 $("importFile").addEventListener("change", (e) => { importCSVFile(e.target.files[0]); e.target.value = ""; });

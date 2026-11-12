@@ -15,4 +15,4 @@ Each item lands as one complete, tested change.
 - [x] Search entries by title
 - [x] Dark/light theme toggle
 - [x] Sample-data button for first-time users
-- [ ] Print-friendly monthly report
+- [x] Print-friendly monthly report

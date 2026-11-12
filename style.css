@@ -58,3 +58,21 @@ canvas{width:100%;height:auto}
 .budget-note.over{color:var(--red)}
 footer{text-align:center;color:var(--muted);padding:26px;font-size:13px}
 .theme-toggle{margin-top:14px}
+
+/* Print-friendly monthly report: the #printReport section stays hidden on
+   screen and is the only thing printed (see renderReport() in app.js). */
+#printReport{display:none}
+@media print{
+  body{background:#fff;color:#000}
+  header,.cards,.panel,footer{display:none !important}
+  #printReport{display:block;max-width:100%;padding:0}
+  #printReport h1{font-size:22px;margin:0 0 4px}
+  #printReport h2{font-size:16px;margin:18px 0 8px}
+  #printReport p{color:#000}
+  .print-table{width:100%;border-collapse:collapse;margin:0 0 6px}
+  .print-table th,.print-table td{border:1px solid #999;padding:5px 8px;text-align:left;font-size:13px}
+  .print-table th{background:#eee}
+  .print-table td.num{text-align:right}
+  .print-table tr{page-break-inside:avoid}
+  #printFoot{font-size:12px;color:#555;margin-top:16px}
+}

@@ -19,6 +19,7 @@
 - 💰 Monthly budgets per category with progress bars (over-budget and near-limit warnings)
 - 🔁 Recurring entries (salary, bills) auto-added once each month on a chosen day
 - 📊 Try sample data — one click loads a realistic month of demo entries (salary, groceries, bills…) so first-time users can see the cards, charts and yearly view at work; “Remove sample data” clears just those entries, never your own
+- 🖨 Print-friendly monthly report — one click builds a clean printable summary of the selected month (totals, spending by category, budget status and the full entry list); the app itself stays hidden on paper
 - 💾 Automatic persistence in `localStorage` — refresh-proof
 - 🌑 Dark/light theme toggle — header button switches the whole UI (including chart colours), saved in `localStorage`, and follows your OS preference on first visit
 - 🌑 Clean dark UI, mobile-friendly
@@ -33,7 +34,7 @@ python3 -m http.server 8000   # http://localhost:8000
 
 ## Roadmap
 
-CSV export/import → monthly budgets with progress bars → recurring entries → edit entries → multi-currency → yearly summary view → search entries → dark/light theme toggle → sample data. Full plan: [ROADMAP.md](ROADMAP.md).
+CSV export/import → monthly budgets with progress bars → recurring entries → edit entries → multi-currency → yearly summary view → search entries → dark/light theme toggle → sample data → print-friendly monthly report. Full plan: [ROADMAP.md](ROADMAP.md).
 
 ## License
 
