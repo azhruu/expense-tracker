@@ -16,3 +16,7 @@ Each item lands as one complete, tested change.
 - [x] Dark/light theme toggle
 - [x] Sample-data button for first-time users
 - [x] Print-friendly monthly report
+
+## Polish (after the roadmap above)
+
+- [x] Delete confirmation — deleting an entry asks first, so a stray click can't wipe a row

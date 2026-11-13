@@ -20,6 +20,7 @@
 - 🔁 Recurring entries (salary, bills) auto-added once each month on a chosen day
 - 📊 Try sample data — one click loads a realistic month of demo entries (salary, groceries, bills…) so first-time users can see the cards, charts and yearly view at work; “Remove sample data” clears just those entries, never your own
 - 🖨 Print-friendly monthly report — one click builds a clean printable summary of the selected month (totals, spending by category, budget status and the full entry list); the app itself stays hidden on paper
+- 🛡️ Delete confirmation — deleting an entry asks first, so a stray click can't wipe a row
 - 💾 Automatic persistence in `localStorage` — refresh-proof
 - 🌑 Dark/light theme toggle — header button switches the whole UI (including chart colours), saved in `localStorage`, and follows your OS preference on first visit
 - 🌑 Clean dark UI, mobile-friendly

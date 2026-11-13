@@ -292,7 +292,18 @@ function addEntry(e) {
   render();
 }
 
-function removeEntry(id) {
+/* Pure helper (DOM-free, unit-testable in node): ask before a
+   destructive delete. `ask` defaults to the browser confirm dialog;
+   tests can pass a stub. No dialog available means "go ahead". */
+function confirmDelete(title, ask) {
+  const askFn = ask || (typeof confirm === "function" ? confirm : null);
+  if (!askFn) return true;
+  return !!askFn("Delete \u201c" + title + "\u201d?");
+}
+
+function removeEntry(id, ask) {
+  const x = entries.find((e) => e.id === id);
+  if (x && !confirmDelete(x.title, ask)) return; // user cancelled
   entries = entries.filter((x) => x.id !== id);
   save();
   render();
