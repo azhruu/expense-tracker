@@ -11,7 +11,7 @@
 - ➕ Add income & expenses with category, date and amount
 - ✏️ Edit any entry in place — click ✎, change it in the same form, save to update it (cancel leaves it untouched)
 - 📊 Live balance, this-month income and this-month expenses cards
-- 🔎 Filter history by month and category, and search entries by title (live, case-insensitive)
+- 🔎 Filter history by month and category, search entries by title (live, case-insensitive), and sort by newest/oldest or highest/lowest amount
 - 💱 Multi-currency support (PKR / USD / EUR) — enter amounts in any of the three currencies, switch the display currency, and all totals, budgets and the chart convert at fixed reference rates; CSV export/import carries the currency column
 - 📥 Export the filtered history to CSV and import entries back from a CSV file
 - 📈 Spending-by-category bar chart (canvas, zero libraries)
@@ -35,7 +35,7 @@ python3 -m http.server 8000   # http://localhost:8000
 
 ## Roadmap
 
-CSV export/import → monthly budgets with progress bars → recurring entries → edit entries → multi-currency → yearly summary view → search entries → dark/light theme toggle → sample data → print-friendly monthly report. Full plan: [ROADMAP.md](ROADMAP.md).
+CSV export/import → monthly budgets with progress bars → recurring entries → edit entries → multi-currency → yearly summary view → search entries → dark/light theme toggle → sample data → print-friendly monthly report → sort history entries. Full plan: [ROADMAP.md](ROADMAP.md).
 
 ## License
 

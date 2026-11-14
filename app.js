@@ -358,11 +358,40 @@ function filtered() {
   const m = $("monthFilter").value;
   const c = $("categoryFilter").value;
   const q = $("searchInput").value;
-  return entries.filter((x) =>
+  const rows = entries.filter((x) =>
     (!m || x.date.startsWith(m)) && (!c || x.category === c)
     && searchMatches(x.title, q));
+  return sortEntries(rows, $("sortSelect").value);
 }
 /* --- end search --- */
+
+/* --- Sort history entries --- */
+
+/* Pure helper (DOM-free, unit-testable in node): return a NEW list sorted
+   by `key` — "newest" (date desc), "oldest" (date asc), "highest" (amount
+   in PKR desc) or "lowest" (amount in PKR asc). Amounts compare in PKR so
+   a USD 10 entry sorts above a PKR 1000 one. Same-date / same-amount
+   entries keep their original order (Array.sort is stable); an unknown
+   key leaves the order alone. The input list is never mutated. */
+function sortEntries(list, key) {
+  const rows = list.slice();
+  switch (key) {
+    case "newest":
+      rows.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+      break;
+    case "oldest":
+      rows.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+      break;
+    case "highest":
+      rows.sort((a, b) => entryPKR(b) - entryPKR(a));
+      break;
+    case "lowest":
+      rows.sort((a, b) => entryPKR(a) - entryPKR(b));
+      break;
+  }
+  return rows;
+}
+/* --- end sort --- */
 
 /* --- Sample data for first-time users ---
    One click loads a realistic month of entries (salary, groceries, bills…)
@@ -764,6 +793,7 @@ $("clearSampleBtn").addEventListener("click", clearSampleData);
 $("importFile").addEventListener("change", (e) => { importCSVFile(e.target.files[0]); e.target.value = ""; });
 $("monthFilter").addEventListener("change", render);
 $("categoryFilter").addEventListener("change", render);
+$("sortSelect").addEventListener("change", render);
 $("searchInput").addEventListener("input", render);
 $("yearFilter").addEventListener("change", render);
 $("currencySelect").addEventListener("change", (e) => setCurrency(e.target.value));

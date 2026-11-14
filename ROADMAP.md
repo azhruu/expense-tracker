@@ -20,3 +20,4 @@ Each item lands as one complete, tested change.
 ## Polish (after the roadmap above)
 
 - [x] Delete confirmation — deleting an entry asks first, so a stray click can't wipe a row
+- [x] Sort history entries — newest / oldest first, or highest / lowest amount (amounts compare in PKR, so currencies sort fairly)
