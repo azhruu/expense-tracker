@@ -237,8 +237,13 @@ function addRecurring(e) {
   render();
 }
 
-function removeRecurring(id) {
-  recurring = recurring.filter((r) => r.id !== id);
+/* A recurring entry is worth as much as a history entry, so deleting one
+   asks first too — same confirmDelete helper, same wording. `ask`
+   defaults to the browser confirm dialog; tests can pass a stub. */
+function removeRecurring(id, ask) {
+  const r = recurring.find((x) => x.id === id);
+  if (r && !confirmDelete(r.title, ask)) return; // user cancelled
+  recurring = recurring.filter((x) => x.id !== id);
   saveRecurring();
   render();
 }
