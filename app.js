@@ -310,6 +310,9 @@ function removeEntry(id, ask) {
   const x = entries.find((e) => e.id === id);
   if (x && !confirmDelete(x.title, ask)) return; // user cancelled
   entries = entries.filter((x) => x.id !== id);
+  // Deleting the entry being edited must exit edit mode, or the form
+  // stays stuck on "Save changes" with nowhere to save to.
+  if (id === editingId) cancelEdit();
   save();
   render();
 }
