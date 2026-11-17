@@ -515,6 +515,28 @@ function parseEntriesCSV(text) {
   return { imported, skipped };
 }
 
+/* Pure helpers (DOM-free, unit-testable in node): true when `entry` matches
+   an entry already in `list` on every field, so importing the same CSV
+   twice never doubles the rows; `dedupeNewEntries` splits a batch of
+   imported rows into fresh entries and duplicates. Rows that duplicate
+   each other inside the same file count as duplicates too. */
+function isDuplicateEntry(list, entry) {
+  return list.some((x) =>
+    x.type === entry.type && x.title === entry.title
+    && x.amount === entry.amount && (x.currency || "PKR") === (entry.currency || "PKR")
+    && x.category === entry.category && x.date === entry.date);
+}
+
+function dedupeNewEntries(existing, imported) {
+  const fresh = [];
+  let duplicates = 0;
+  for (const x of imported) {
+    if (isDuplicateEntry(existing.concat(fresh), x)) duplicates++;
+    else fresh.push(x);
+  }
+  return { fresh, duplicates };
+}
+
 function exportCSV() {
   const rows = filtered();
   if (!rows.length) { $("csvStatus").textContent = "Nothing to export — no entries match the current filters."; return; }
@@ -532,8 +554,10 @@ function importCSVFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
     const { imported, skipped } = parseEntriesCSV(reader.result);
-    if (imported.length) { entries = imported.concat(entries); save(); render(); }
-    $("csvStatus").textContent = "Imported " + imported.length + " entries"
+    const { fresh, duplicates } = dedupeNewEntries(entries, imported);
+    if (fresh.length) { entries = fresh.concat(entries); save(); render(); }
+    $("csvStatus").textContent = "Imported " + fresh.length + " entries"
+      + (duplicates ? " (" + duplicates + " already there — skipped)" : "")
       + (skipped ? " (" + skipped + " invalid rows skipped)" : "") + ".";
   };
   reader.readAsText(file);

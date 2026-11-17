@@ -23,3 +23,4 @@ Each item lands as one complete, tested change.
 - [x] Sort history entries — newest / oldest first, or highest / lowest amount (amounts compare in PKR, so currencies sort fairly)
 - [x] Delete confirmation for recurring entries — deleting a recurring entry asks first, like deleting a history entry
 - [x] Edit-mode safety — deleting the entry you're editing exits edit mode, so the form can't stay stuck on "Save changes" with nowhere to save to
+- [x] CSV import skips duplicates — re-importing a file never adds an entry that's already there (same type, title, amount, currency, category and date)

@@ -13,7 +13,7 @@
 - 📊 Live balance, this-month income and this-month expenses cards
 - 🔎 Filter history by month and category, search entries by title (live, case-insensitive), and sort by newest/oldest or highest/lowest amount
 - 💱 Multi-currency support (PKR / USD / EUR) — enter amounts in any of the three currencies, switch the display currency, and all totals, budgets and the chart convert at fixed reference rates; CSV export/import carries the currency column
-- 📥 Export the filtered history to CSV and import entries back from a CSV file
+- 📥 Export the filtered history to CSV and import entries back from a CSV file — re-importing the same file skips rows that are already there, so nothing gets doubled
 - 📈 Spending-by-category bar chart (canvas, zero libraries)
 - 📅 Yearly summary view — pick a year, see yearly income/expense/net totals and a monthly income-vs-expenses trend line chart (canvas, zero libraries), with best and worst months called out
 - 💰 Monthly budgets per category with progress bars (over-budget and near-limit warnings)
