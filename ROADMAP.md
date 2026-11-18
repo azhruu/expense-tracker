@@ -24,3 +24,4 @@ Each item lands as one complete, tested change.
 - [x] Delete confirmation for recurring entries — deleting a recurring entry asks first, like deleting a history entry
 - [x] Edit-mode safety — deleting the entry you're editing exits edit mode, so the form can't stay stuck on "Save changes" with nowhere to save to
 - [x] CSV import skips duplicates — re-importing a file never adds an entry that's already there (same type, title, amount, currency, category and date)
+- [x] Clear all entries — one button wipes the whole tracker for a fresh start, with a confirmation first so a stray click can't empty it (and it exits edit mode if the entry being edited is wiped)

@@ -317,6 +317,32 @@ function removeEntry(id, ask) {
   render();
 }
 
+/* --- Clear all entries ---
+   One button wipes the whole tracker (sample data included) — useful
+   for a fresh start after a year of entries. It asks once first, so a
+   stray click can't empty the tracker; a cancelled answer leaves
+   everything untouched. */
+
+/* Pure helper (DOM-free, unit-testable in node): confirm the wipe.
+   `ask` defaults to the browser confirm dialog; tests can pass a stub.
+   Nothing to delete means nothing to ask. */
+function confirmClearAll(count, ask) {
+  if (!(count > 0)) return false;
+  const askFn = ask || (typeof confirm === "function" ? confirm : null);
+  if (!askFn) return true;
+  return !!askFn("Delete ALL " + count + " entries? This cannot be undone.");
+}
+
+function clearAllEntries(ask) {
+  if (!confirmClearAll(entries.length, ask)) return;
+  entries = [];
+  // Wiping the entry being edited must exit edit mode, like deleting it.
+  if (editingId !== null) cancelEdit();
+  save();
+  render();
+}
+/* --- end clear all --- */
+
 /* --- Edit an existing entry --- */
 let editingId = null;
 
@@ -766,6 +792,7 @@ function render() {
   $("emptyMsg").style.display = rows.length ? "none" : "block";
   $("sampleDataBtn").style.display = entries.length ? "none" : "";
   $("clearSampleBtn").style.display = entries.some((x) => x.sample) ? "" : "none";
+  $("clearAllBtn").style.display = entries.length ? "" : "none";
   const q = $("searchInput").value.trim();
   $("emptyMsg").textContent = (q && !rows.length)
     ? "No entries match “" + q + "” — try a different title."
@@ -822,6 +849,7 @@ $("exportBtn").addEventListener("click", exportCSV);
 $("printBtn").addEventListener("click", printReport);
 $("sampleDataBtn").addEventListener("click", loadSampleData);
 $("clearSampleBtn").addEventListener("click", clearSampleData);
+$("clearAllBtn").addEventListener("click", () => clearAllEntries());
 $("importFile").addEventListener("change", (e) => { importCSVFile(e.target.files[0]); e.target.value = ""; });
 $("monthFilter").addEventListener("change", render);
 $("categoryFilter").addEventListener("change", render);
