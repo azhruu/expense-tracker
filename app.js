@@ -42,6 +42,39 @@ function setBudget(e) {
   render();
 }
 
+/* Pure helper (DOM-free, unit-testable in node): what happens to a
+   category's budget if `entry` is added — null when the entry isn't an
+   expense dated in `monthStr`, or the category has no budget. Otherwise
+   the budget limit, spend before/after adding, and the status from
+   budgetProgress ("ok" below 80%, "warn" at 80%+, "over" past the limit). */
+function budgetCheckForEntry(budgetMap, monthEntries, entry, monthStr) {
+  if (!entry || entry.type !== "expense") return null;
+  if (!entry.date || !String(entry.date).startsWith(monthStr)) return null;
+  const limit = (budgetMap || {})[entry.category];
+  if (!(limit > 0)) return null;
+  const spent = monthEntries
+    .filter((x) => x.type === "expense" && x.category === entry.category
+      && x.date && x.date.startsWith(monthStr))
+    .reduce((s, x) => s + entryPKR(x), 0);
+  const spentAfter = spent + entryPKR(entry);
+  const p = budgetProgress(spentAfter, limit);
+  return { category: entry.category, limit, spentBefore: spent,
+           spentAfter, pct: p.pct, status: p.status };
+}
+
+/* Show (or clear) the budget warning under the entry form: adding an
+   expense that takes its category to 80%+ of its monthly budget, or
+   over it, says so right where the entry was just added. */
+function showBudgetWarning(check) {
+  const el = $("budgetWarn");
+  if (!check || check.status === "ok") { el.textContent = ""; return; }
+  el.textContent = check.status === "over"
+    ? "⚠️ This pushes " + check.category + " over its " + fmt(check.limit)
+      + " budget by " + fmt(check.spentAfter - check.limit) + "."
+    : "⚠️ This takes " + check.category + " to " + check.pct + "% of its "
+      + fmt(check.limit) + " budget.";
+}
+
 function removeBudget(category) {
   delete budgets[category];
   saveBudgets();
@@ -283,11 +316,17 @@ function addEntry(e) {
     date: $("date").value,
   };
   if (!fields.title || !(fields.amount > 0) || !fields.date) return;
+  // Check the budget before adding: month entries excluding the one
+  // being edited, so an edit doesn't count its old amount twice.
+  const check = budgetCheckForEntry(budgets,
+    entries.filter((x) => x.date.startsWith(thisMonth()) && x.id !== editingId),
+    fields, thisMonth());
   if (editingId !== null) {
     entries = applyEdit(entries, editingId, fields);
     save();
     cancelEdit();
     render();
+    showBudgetWarning(check);
     return;
   }
   entries.unshift({ id: Date.now(), ...fields });
@@ -295,6 +334,7 @@ function addEntry(e) {
   $("entryForm").reset();
   $("date").value = new Date().toISOString().slice(0, 10);
   render();
+  showBudgetWarning(check);
 }
 
 /* Pure helper (DOM-free, unit-testable in node): ask before a
@@ -356,6 +396,7 @@ function startEdit(id) {
   const x = entries.find((e) => e.id === id);
   if (!x) return;
   editingId = id;
+  $("budgetWarn").textContent = ""; // a warning about the last add is stale now
   $("type").value = x.type;
   $("title").value = x.title;
   $("amount").value = x.amount;
@@ -370,6 +411,7 @@ function startEdit(id) {
 
 function cancelEdit() {
   editingId = null;
+  $("budgetWarn").textContent = "";
   $("entryForm").reset();
   $("date").value = new Date().toISOString().slice(0, 10);
   $("formTitle").textContent = "Add entry";
