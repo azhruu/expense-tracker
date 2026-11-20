@@ -420,6 +420,27 @@ function cancelEdit() {
 }
 /* --- end edit --- */
 
+/* --- Duplicate an entry ---
+   Weekly repeats (same groceries, same bus fare) shouldn't need
+   retyping: one click copies the entry with a fresh id and today's
+   date, so the copy lands in the current month. */
+
+/* Pure helper (DOM-free, unit-testable in node): copy the entry with
+   `id` — same fields, a new id, dated `today`; an unknown id leaves
+   the list alone (a copy of it, so callers can always reassign). */
+function duplicateEntry(list, id, today) {
+  const x = list.find((e) => e.id === id);
+  if (!x) return list.slice();
+  return [{ ...x, id: Date.now(), date: today }, ...list];
+}
+
+function duplicateEntryById(id) {
+  entries = duplicateEntry(entries, id, new Date().toISOString().slice(0, 10));
+  save();
+  render();
+}
+/* --- end duplicate --- */
+
 /* --- Search entries by title --- */
 
 /* Pure helper (DOM-free, unit-testable in node): case-insensitive substring
@@ -844,8 +865,9 @@ function render() {
     li.innerHTML =
       `<div class="entry-main"><span></span><small>${x.date} · ${x.category}</small></div>` +
       `<div><span class="amt ${x.type === "income" ? "in" : "out"}">${x.type === "income" ? "+" : "−"} ${fmt(entryPKR(x))}</span>` +
-      `<button class="edit" title="Edit">✎</button><button class="del" title="Delete">✕</button></div>`;
+      `<button class="dup" title="Duplicate">⧉</button><button class="edit" title="Edit">✎</button><button class="del" title="Delete">✕</button></div>`;
     li.querySelector(".entry-main span").textContent = x.title;
+    li.querySelector(".dup").addEventListener("click", () => duplicateEntryById(x.id));
     li.querySelector(".edit").addEventListener("click", () => startEdit(x.id));
     li.querySelector(".del").addEventListener("click", () => removeEntry(x.id));
     list.appendChild(li);

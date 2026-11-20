@@ -42,6 +42,7 @@ ul#entries li:last-child{border-bottom:none}
 .amt.in{color:var(--green)} .amt.out{color:var(--red)}
 .del{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:2px 6px}
 .edit{background:none;border:none;color:var(--accent);cursor:pointer;font-size:15px;padding:2px 6px}
+.dup{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:2px 6px}
 .muted{color:var(--muted)}
 .year-cards{margin:14px 0}
 .year-cards .card{min-width:160px}

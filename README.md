@@ -10,6 +10,7 @@
 
 - ➕ Add income & expenses with category, date and amount
 - ✏️ Edit any entry in place — click ✎, change it in the same form, save to update it (cancel leaves it untouched); deleting the entry you're editing exits edit mode instead of leaving the form stuck
+- ⧉ Duplicate any entry — one click copies it with today's date, so weekly repeats (same groceries, same fare) don't need retyping
 - 📊 Live balance, this-month income and this-month expenses cards
 - 🔎 Filter history by month and category, search entries by title (live, case-insensitive), and sort by newest/oldest or highest/lowest amount
 - 💱 Multi-currency support (PKR / USD / EUR) — enter amounts in any of the three currencies, switch the display currency, and all totals, budgets and the chart convert at fixed reference rates; CSV export/import carries the currency column
