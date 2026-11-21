@@ -18,7 +18,7 @@
 - 📈 Spending-by-category bar chart (canvas, zero libraries)
 - 📅 Yearly summary view — pick a year, see yearly income/expense/net totals and a monthly income-vs-expenses trend line chart (canvas, zero libraries), with best and worst months called out
 - 💰 Monthly budgets per category with progress bars (over-budget and near-limit warnings); adding an expense that takes a category to 80%+ of its budget warns under the form, with the new total
-- 🔁 Recurring entries (salary, bills) auto-added once each month on a chosen day
+- 🔁 Recurring entries (salary, bills) auto-added once each month on a chosen day — edit any recurring entry in place with ✎ (cancel leaves it untouched); deleting the one being edited exits edit mode
 - 📊 Try sample data — one click loads a realistic month of demo entries (salary, groceries, bills…) so first-time users can see the cards, charts and yearly view at work; “Remove sample data” clears just those entries, never your own
 - 🖨 Print-friendly monthly report — one click builds a clean printable summary of the selected month (totals, spending by category, budget status and the full entry list); the app itself stays hidden on paper
 - 🛡️ Delete confirmation — deleting an entry (or a recurring entry) asks first, so a stray click can't wipe a row

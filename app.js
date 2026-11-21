@@ -253,8 +253,7 @@ function applyRecurring() {
 
 function addRecurring(e) {
   e.preventDefault();
-  const rec = {
-    id: Date.now(),
+  const fields = {
     type: $("recType").value,
     title: $("recTitle").value.trim(),
     amount: parseFloat($("recAmount").value),
@@ -262,12 +261,55 @@ function addRecurring(e) {
     category: $("recCategory").value,
     day: parseInt($("recDay").value, 10),
   };
-  if (!rec.title || !(rec.amount > 0) || !(rec.day >= 1 && rec.day <= 31)) return;
-  recurring.unshift(rec);
+  if (!fields.title || !(fields.amount > 0) || !(fields.day >= 1 && fields.day <= 31)) return;
+  if (editingRecurringId !== null) {
+    recurring = applyRecurringEdit(recurring, editingRecurringId, fields);
+    saveRecurring();
+    cancelRecurringEdit();
+    render();
+    return;
+  }
+  recurring.unshift({ id: Date.now(), ...fields });
   saveRecurring();
   $("recurringForm").reset();
   $("recDay").value = 1;
   render();
+}
+
+/* --- Edit a recurring entry ---
+   Same pattern as editing a history entry: click ✎, change it in the
+   same form, save to update it; cancel leaves it untouched. */
+
+/* Pure helper (DOM-free, unit-testable in node): merge `fields` into the
+   recurring entry with `id`, keeping its position; an unknown id leaves
+   the list alone. */
+function applyRecurringEdit(list, id, fields) {
+  return list.map((x) => (x.id === id ? { ...x, ...fields } : x));
+}
+
+let editingRecurringId = null;
+
+function startRecurringEdit(id) {
+  const r = recurring.find((x) => x.id === id);
+  if (!r) return;
+  editingRecurringId = id;
+  $("recType").value = r.type;
+  $("recTitle").value = r.title;
+  $("recAmount").value = r.amount;
+  $("recCurrency").value = r.currency || "PKR";
+  $("recCategory").value = r.category;
+  $("recDay").value = r.day;
+  $("recSubmitBtn").textContent = "Save changes";
+  $("cancelRecEditBtn").style.display = "";
+  $("recTitle").focus();
+}
+
+function cancelRecurringEdit() {
+  editingRecurringId = null;
+  $("recurringForm").reset();
+  $("recDay").value = 1;
+  $("recSubmitBtn").textContent = "Add recurring";
+  $("cancelRecEditBtn").style.display = "none";
 }
 
 /* A recurring entry is worth as much as a history entry, so deleting one
@@ -277,6 +319,9 @@ function removeRecurring(id, ask) {
   const r = recurring.find((x) => x.id === id);
   if (r && !confirmDelete(r.title, ask)) return; // user cancelled
   recurring = recurring.filter((x) => x.id !== id);
+  // Deleting the recurring entry being edited must exit edit mode, or
+  // the form stays stuck on "Save changes" with nowhere to save to.
+  if (id === editingRecurringId) cancelRecurringEdit();
   saveRecurring();
   render();
 }
@@ -295,10 +340,11 @@ function renderRecurring() {
     li.innerHTML =
       `<div class="entry-main"><span></span><small></small></div>` +
       `<div><span class="amt ${r.type === "income" ? "in" : "out"}">${r.type === "income" ? "+" : "−"} ${fmt(entryPKR(r))}</span>` +
-      `<button class="del" title="Delete recurring entry">✕</button></div>`;
+      `<button class="edit" title="Edit recurring entry">✎</button><button class="del" title="Delete recurring entry">✕</button></div>`;
     li.querySelector(".entry-main span").textContent = r.title;
     li.querySelector(".entry-main small").textContent =
       r.category + " · day " + r.day + " of each month";
+    li.querySelector(".edit").addEventListener("click", () => startRecurringEdit(r.id));
     li.querySelector(".del").addEventListener("click", () => removeRecurring(r.id));
     list.appendChild(li);
   }
@@ -909,6 +955,7 @@ $("entryForm").addEventListener("submit", addEntry);
 $("cancelEditBtn").addEventListener("click", cancelEdit);
 $("budgetForm").addEventListener("submit", setBudget);
 $("recurringForm").addEventListener("submit", addRecurring);
+$("cancelRecEditBtn").addEventListener("click", cancelRecurringEdit);
 $("exportBtn").addEventListener("click", exportCSV);
 $("printBtn").addEventListener("click", printReport);
 $("sampleDataBtn").addEventListener("click", loadSampleData);

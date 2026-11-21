@@ -149,7 +149,8 @@
       <option>Salary</option><option>Other</option>
     </select>
     <input id="recDay" type="number" placeholder="Day of month" min="1" max="31" value="1" required>
-    <button type="submit">Add recurring</button>
+    <button type="submit" id="recSubmitBtn">Add recurring</button>
+    <button type="button" id="cancelRecEditBtn" class="secondary" style="display:none">Cancel</button>
   </form>
   <p id="recurringStatus" class="muted"></p>
   <ul id="recurringList"></ul>
