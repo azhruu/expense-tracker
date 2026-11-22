@@ -536,6 +536,27 @@ function sortEntries(list, key) {
 }
 /* --- end sort --- */
 
+/* --- Reset filters ---
+   One click restores the filter controls to their defaults — empty
+   search, the current month, all categories, newest first — so getting
+   back to the full history doesn't take four manual clears. */
+
+/* Pure helper (DOM-free, unit-testable in node): the filter controls'
+   defaults for a given current month. */
+function filterDefaults(monthStr) {
+  return { search: "", month: monthStr, category: "", sort: "newest" };
+}
+
+function resetFilters() {
+  const d = filterDefaults(thisMonth());
+  $("searchInput").value = d.search;
+  $("monthFilter").value = d.month;
+  $("categoryFilter").value = d.category;
+  $("sortSelect").value = d.sort;
+  render();
+}
+/* --- end reset filters --- */
+
 /* --- Sample data for first-time users ---
    One click loads a realistic month of entries (salary, groceries, bills…)
    so the cards, charts and yearly view have something to show. Dates are
@@ -966,6 +987,7 @@ $("monthFilter").addEventListener("change", render);
 $("categoryFilter").addEventListener("change", render);
 $("sortSelect").addEventListener("change", render);
 $("searchInput").addEventListener("input", render);
+$("resetFiltersBtn").addEventListener("click", resetFilters);
 $("yearFilter").addEventListener("change", render);
 $("currencySelect").addEventListener("change", (e) => setCurrency(e.target.value));
 $("themeToggle").addEventListener("click", toggleTheme);

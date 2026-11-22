@@ -28,3 +28,4 @@ Each item lands as one complete, tested change.
 - [x] Budget warning when adding an entry — an expense that takes its category to 80%+ of its monthly budget (or over it) warns under the form, with the new total, so the overspend is caught at the moment of adding
 - [x] Edit a recurring entry — click ✎ on a recurring row to change its title, amount, currency, category or day in the same form (cancel leaves it untouched); deleting the recurring entry being edited exits edit mode, like deleting the entry being edited
 - [x] Duplicate an entry — a ⧉ button on each history row copies it with a fresh id and today's date, so weekly repeats don't need retyping
+- [x] Reset filters — a ↺ button clears search, month, category and sort back to the defaults (empty search, current month, all categories, newest first) in one click
