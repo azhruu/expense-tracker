@@ -536,6 +536,34 @@ function sortEntries(list, key) {
 }
 /* --- end sort --- */
 
+/* --- Filtered-history summary ---
+   The cards at the top always show this month's totals, so once the
+   history is filtered (another month, one category, a search) the rows
+   on screen no longer match them. A one-line summary under the filters
+   shows what the visible rows add up to, in the display currency. */
+
+/* Pure helper (DOM-free, unit-testable in node): count, income and
+   expense totals (in PKR) for a list of entries. */
+function historySummary(rows) {
+  let income = 0, expenses = 0;
+  for (const x of rows) {
+    if (x.type === "income") income += entryPKR(x);
+    else if (x.type === "expense") expenses += entryPKR(x);
+  }
+  return { count: rows.length, income, expenses, net: income - expenses };
+}
+
+function renderHistorySummary(rows) {
+  const s = historySummary(rows);
+  $("historySummary").textContent = s.count
+    ? s.count + (s.count === 1 ? " entry" : " entries")
+      + " · Income " + fmt(s.income)
+      + " · Expenses " + fmt(s.expenses)
+      + " · Net " + fmt(s.net)
+    : "";
+}
+/* --- end filtered-history summary --- */
+
 /* --- Reset filters ---
    One click restores the filter controls to their defaults — empty
    search, the current month, all categories, newest first — so getting
@@ -919,6 +947,7 @@ function render() {
   const list = $("entries");
   list.innerHTML = "";
   const rows = filtered();
+  renderHistorySummary(rows);
   $("emptyMsg").style.display = rows.length ? "none" : "block";
   $("sampleDataBtn").style.display = entries.length ? "none" : "";
   $("clearSampleBtn").style.display = entries.some((x) => x.sample) ? "" : "none";
