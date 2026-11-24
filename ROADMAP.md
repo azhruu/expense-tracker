@@ -30,3 +30,4 @@ Each item lands as one complete, tested change.
 - [x] Duplicate an entry — a ⧉ button on each history row copies it with a fresh id and today's date, so weekly repeats don't need retyping
 - [x] Reset filters — a ↺ button clears search, month, category and sort back to the defaults (empty search, current month, all categories, newest first) in one click
 - [x] Filtered-history summary — a line under the filters totals exactly the rows on screen (count, income, expenses and net), so a filtered month, category or search has its own totals instead of only the this-month cards
+- [x] Amounts keep their decimals — a converted amount shows up to 2 decimal places, so Rs 100 no longer displays as "$ 0" in USD (whole amounts still show whole)

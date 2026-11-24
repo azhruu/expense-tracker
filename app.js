@@ -139,10 +139,14 @@ function fromPKR(pkr, currency) {
 }
 function entryPKR(x) { return toPKR(x.amount, x.currency || "PKR"); }
 
-/* Format a PKR amount in the selected display currency. */
+/* Format a PKR amount in the selected display currency. Whole amounts
+   stay whole; anything with pence/cents keeps up to two decimals, so a
+   small amount never rounds away to nothing (Rs 100 used to show as
+   "$ 0" in USD, and Rs 1000 as "$ 4" instead of "$ 3.6"). */
 const fmt = (n) => {
   const c = CURRENCIES[displayCurrency];
-  return c.symbol + " " + Math.round(fromPKR(n, displayCurrency)).toLocaleString("en-US");
+  return c.symbol + " " + fromPKR(n, displayCurrency)
+    .toLocaleString("en-US", { maximumFractionDigits: 2 });
 };
 
 function setCurrency(code) {
