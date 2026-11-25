@@ -204,7 +204,18 @@ function toggleTheme() {
 }
 /* --- end theme toggle --- */
 
-const thisMonth = () => new Date().toISOString().slice(0, 7); // YYYY-MM
+/* Local date (not UTC): toISOString() is UTC, so in PKT the default date
+   and month could still be yesterday — at 00:30 on the 1st it would
+   default to the previous month, and a sample entry dated the 1st
+   would land on the last day of the month before. */
+function localDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return y + "-" + m + "-" + day;
+}
+const todayStr = () => localDateStr(new Date());
+const thisMonth = () => todayStr().slice(0, 7); // YYYY-MM
 
 /* --- Recurring entries: auto-added once per month --- */
 const RECURRING_KEY = "expense-tracker-recurring-v1";
@@ -382,7 +393,7 @@ function addEntry(e) {
   entries.unshift({ id: Date.now(), ...fields });
   save();
   $("entryForm").reset();
-  $("date").value = new Date().toISOString().slice(0, 10);
+  $("date").value = todayStr();
   render();
   showBudgetWarning(check);
 }
@@ -463,7 +474,7 @@ function cancelEdit() {
   editingId = null;
   $("budgetWarn").textContent = "";
   $("entryForm").reset();
-  $("date").value = new Date().toISOString().slice(0, 10);
+  $("date").value = todayStr();
   $("formTitle").textContent = "Add entry";
   $("submitBtn").textContent = "Add";
   $("cancelEditBtn").style.display = "none";
@@ -485,7 +496,7 @@ function duplicateEntry(list, id, today) {
 }
 
 function duplicateEntryById(id) {
-  entries = duplicateEntry(entries, id, new Date().toISOString().slice(0, 10));
+  entries = duplicateEntry(entries, id, todayStr());
   save();
   render();
 }
@@ -601,7 +612,7 @@ function resetFilters() {
 function sampleEntries(ref) {
   const y = ref.getFullYear(), m = ref.getMonth();
   const d = (monthOffset, day) =>
-    new Date(y, m + monthOffset, day).toISOString().slice(0, 10);
+    localDateStr(new Date(y, m + monthOffset, day));
   const base = Date.now();
   const rows = [
     // [monthOffset, day, type, title, amount, category]
@@ -731,7 +742,7 @@ function exportCSV() {
   const blob = new Blob([toCSV(rows)], { type: "text/csv" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "expense-tracker-" + new Date().toISOString().slice(0, 10) + ".csv";
+  a.download = "expense-tracker-" + todayStr() + ".csv";
   a.click();
   URL.revokeObjectURL(a.href);
   $("csvStatus").textContent = "Exported " + rows.length + " entries to CSV.";
@@ -1024,7 +1035,7 @@ $("resetFiltersBtn").addEventListener("click", resetFilters);
 $("yearFilter").addEventListener("change", render);
 $("currencySelect").addEventListener("change", (e) => setCurrency(e.target.value));
 $("themeToggle").addEventListener("click", toggleTheme);
-$("date").value = new Date().toISOString().slice(0, 10);
+$("date").value = todayStr();
 $("monthFilter").value = thisMonth();
 $("yearFilter").value = new Date().getFullYear();
 $("currencySelect").value = displayCurrency;
