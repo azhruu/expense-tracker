@@ -139,6 +139,17 @@ function fromPKR(pkr, currency) {
 }
 function entryPKR(x) { return toPKR(x.amount, x.currency || "PKR"); }
 
+/* Pure helper (DOM-free, unit-testable in node): the amount as it was
+   entered — "" when the entry's currency is the display currency,
+   otherwise e.g. "USD 10", so a converted total never hides what was
+   actually typed (Rs 2,780 could be USD 10 or EUR 9.27). */
+function originalAmountNote(x) {
+  const c = x.currency || "PKR";
+  if (c === displayCurrency) return "";
+  return c + " " + Number(x.amount)
+    .toLocaleString("en-US", { maximumFractionDigits: 2 });
+}
+
 /* Format a PKR amount in the selected display currency. Whole amounts
    stay whole; anything with pence/cents keeps up to two decimals, so a
    small amount never rounds away to nothing (Rs 100 used to show as
@@ -352,9 +363,10 @@ function renderRecurring() {
     : "";
   for (const r of recurring) {
     const li = document.createElement("li");
+    const note = originalAmountNote(r);
     li.innerHTML =
       `<div class="entry-main"><span></span><small></small></div>` +
-      `<div><span class="amt ${r.type === "income" ? "in" : "out"}">${r.type === "income" ? "+" : "−"} ${fmt(entryPKR(r))}</span>` +
+      `<div><span class="amt ${r.type === "income" ? "in" : "out"}">${r.type === "income" ? "+" : "−"} ${fmt(entryPKR(r))}${note ? " (" + note + ")" : ""}</span>` +
       `<button class="edit" title="Edit recurring entry">✎</button><button class="del" title="Delete recurring entry">✕</button></div>`;
     li.querySelector(".entry-main span").textContent = r.title;
     li.querySelector(".entry-main small").textContent =
@@ -973,9 +985,10 @@ function render() {
     : "No entries yet — add your first one above.";
   for (const x of rows) {
     const li = document.createElement("li");
+    const note = originalAmountNote(x);
     li.innerHTML =
       `<div class="entry-main"><span></span><small>${x.date} · ${x.category}</small></div>` +
-      `<div><span class="amt ${x.type === "income" ? "in" : "out"}">${x.type === "income" ? "+" : "−"} ${fmt(entryPKR(x))}</span>` +
+      `<div><span class="amt ${x.type === "income" ? "in" : "out"}">${x.type === "income" ? "+" : "−"} ${fmt(entryPKR(x))}${note ? " (" + note + ")" : ""}</span>` +
       `<button class="dup" title="Duplicate">⧉</button><button class="edit" title="Edit">✎</button><button class="del" title="Delete">✕</button></div>`;
     li.querySelector(".entry-main span").textContent = x.title;
     li.querySelector(".dup").addEventListener("click", () => duplicateEntryById(x.id));
