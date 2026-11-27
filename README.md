@@ -13,6 +13,7 @@
 - ⧉ Duplicate any entry — one click copies it with today's date, so weekly repeats (same groceries, same fare) don't need retyping
 - 📊 Live balance, this-month income and this-month expenses cards
 - 🔎 Filter history by month and category, search entries by title (live, case-insensitive), and sort by newest/oldest or highest/lowest amount — ↺ Reset filters restores the defaults (empty search, current month, all categories, newest first) in one click; the summary line under the filters totals exactly the rows on screen (count, income, expenses, net)
+- ⌨️ Press / anywhere outside a text field to jump straight to the search box, so finding an entry doesn't need the mouse
 - 💱 Multi-currency support (PKR / USD / EUR) — enter amounts in any of the three currencies, switch the display currency, and all totals, budgets and the chart convert at fixed reference rates; amounts keep up to two decimal places, so a small value never rounds away to nothing (Rs 100 shows as $ 0.36, not $ 0); CSV export/import carries the currency column; history and recurring rows still show the amount as entered (e.g. USD 10) next to the converted total when it differs from the display currency
 - 📥 Export the filtered history to CSV and import entries back from a CSV file — re-importing the same file skips rows that are already there, so nothing gets doubled
 - 📈 Spending-by-category bar chart (canvas, zero libraries)

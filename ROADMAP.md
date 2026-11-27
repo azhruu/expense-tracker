@@ -33,3 +33,4 @@ Each item lands as one complete, tested change.
 - [x] Amounts keep their decimals — a converted amount shows up to 2 decimal places, so Rs 100 no longer displays as "$ 0" in USD (whole amounts still show whole)
 - [x] Dates use the local calendar, not UTC — the default date, month filter, duplicated-entry date, sample data and CSV filename no longer slip a day behind in PKT (after midnight the UTC date is still yesterday, so a sample entry dated the 1st used to land on the last day of the month before)
 - [x] History & recurring rows show the amount as entered — a USD 10 entry still reads "(USD 10)" next to its converted total when the display currency is PKR, so a converted total never hides what was actually typed (entries entered in the display currency show nothing extra)
+- [x] Keyboard shortcut — press / anywhere outside a text field to jump to the search box, so finding an entry doesn't need the mouse

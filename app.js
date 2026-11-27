@@ -533,6 +533,28 @@ function filtered() {
     && searchMatches(x.title, q));
   return sortEntries(rows, $("sortSelect").value);
 }
+
+/* --- Keyboard shortcut: "/" focuses search ---
+   Finding an entry shouldn't need the mouse: pressing "/" anywhere
+   outside a text field jumps straight to the search box. */
+
+/* Pure helper (DOM-free, unit-testable in node): true when a keydown
+   should jump to the search box — the "/" key pressed outside any text
+   field, so typing a slash into a title or the search box itself still
+   works; a modifier key (Ctrl/Cmd/Alt) means a browser shortcut, not
+   this one. */
+function isSearchShortcut(e) {
+  if (!e || e.key !== "/") return false;
+  if (e.ctrlKey || e.metaKey || e.altKey) return false;
+  const tag = String((e.target && e.target.tagName) || "").toLowerCase();
+  if (tag === "input" || tag === "textarea" || tag === "select") return false;
+  if (e.target && e.target.isContentEditable) return false;
+  return true;
+}
+
+document.addEventListener("keydown", (e) => {
+  if (isSearchShortcut(e)) { e.preventDefault(); $("searchInput").focus(); }
+});
 /* --- end search --- */
 
 /* --- Sort history entries --- */
